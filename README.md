@@ -4,7 +4,7 @@ modernTimes のER図を以下に示す．
  %%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','primaryTextColor':'ffffff','primaryBorderColor':'#000000','secondaryColor':'#000000','lineColor':'#000000','noteTextColor':'#000000','noteBkgColor':'#000000','textColor':'#000000','fontSize':'20px','fontFamily':''},'themeCSS':"text.actor {font-size:24px !important;}"}}%%
  erDiagram
    nurses ||--|| teams : "1対1"
-   nurses ||--|| ladder_level : "1対1"
+   nurses ||--|| ladder_levels : "1対1"
    shifts }|--|| nurses : "多対1"
    shifts }|--|| shift_types : "多対1"
    nurses {
