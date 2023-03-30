@@ -36,6 +36,7 @@ modernTimes のER図を以下に示す．
      integer id PK
      references shift_type_id FK
      date date
+     enum state "fixed,unfixed,requested"
    }
    
    nurses_shifts {
@@ -67,6 +68,7 @@ modernTimes のER図を以下に示す．
      integer id PK
      string shift_name "勤務形態名"
      date date "日付"
+     enum state "fixed,unfixed,requested"
    }
    
    nurses_shifts {
