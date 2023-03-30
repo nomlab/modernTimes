@@ -87,9 +87,11 @@ date_tail = Date.new(2023, 6, 30)
 
 (date_head..date_tail).each do |date|
   # 1:日勤，2:準夜勤，3:深夜勤 をまず割当てる
+  unassigned_nurses = Nurse.all
   (1..3).each do |kind|
     shift_type = ShiftType.find_by(kind: kind)
-    nurses = Nurse.all.sample(number_of_nurses(date, kind))
+    nurses = unassigned_nurses.sample(number_of_nurses(date, kind))
+    unassigned_nurses -= nurses
     nurses.each do |nurse|
       state = rand(1..3)
       assignment = Assignment.new(date: date, nurse: nurse, shift_type: shift_type, state: state)
