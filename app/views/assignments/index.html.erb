@@ -3,12 +3,33 @@
 <h1>Assignments</h1>
 
 <div id="assignments">
+  <% assignment_table = {} %>
   <% @assignments.each do |assignment| %>
-    <%= render assignment %>
-    <p>
-      <%= link_to "Show this assignment", assignment %>
-    </p>
+    <% date = assignment.date %>
+    <% nurse = assignment.nurse %>
+    <% name = assignment.shift_type.name %>
+    <% name_abbrev = name[0] %>
+    <% unless assignment_table[nurse.id] %>
+      <% assignment_table[nurse.id] = {} %>
+    <% end %>
+    <% assignment_table[nurse.id][date] = name_abbrev %>
   <% end %>
+
+  <table border="1">
+    <th>
+      <% (@month...(@month >> 1)).each do |date| %>
+        <td><%= date.strftime("%d") %></td>
+      <% end %>
+    </th>
+    <% Nurse.all.each do |nurse| %>
+      <tr>
+        <td> <%= nurse.name %>
+        <% (@month...(@month >> 1)).each do |date| %>
+          <td><%= assignment_table[nurse.id][date] %></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </table>
 </div>
 
 <%= link_to "New assignment", new_assignment_path %>

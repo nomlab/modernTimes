@@ -3,7 +3,13 @@ class AssignmentsController < ApplicationController
 
   # GET /assignments or /assignments.json
   def index
-    @assignments = Assignment.all
+    month = params[:month].to_s
+    if month =~ /(\d{4})(\d{2})/
+      @month = Date.new($1.to_i, $2.to_i)
+    else
+      @month = Date.today
+    end
+    @assignments = Assignment.where(date: @month...(@month >> 1))
   end
 
   # GET /assignments/1 or /assignments/1.json
