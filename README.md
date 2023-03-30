@@ -1,6 +1,14 @@
-modernTimes のER図を以下に示す．
+# modernTimes
 
-理想
+## TODO
+
+- 25人の Nurse と 3ヶ月分の Shift のダミーデータを CSV で作る
+- CSV を ActiveRecord にCLIから直接挿入するスクリプトを書く
+
+
+# ER図
+
+<!-- 理想
 ```mermaid
  %%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','primaryTextColor':'ffffff','primaryBorderColor':'#000000','secondaryColor':'#000000','lineColor':'#000000','noteTextColor':'#000000','noteBkgColor':'#000000','textColor':'#000000','fontSize':'20px','fontFamily':''},'themeCSS':"text.actor {font-size:24px !important;}"}}%%
  erDiagram
@@ -44,8 +52,8 @@ modernTimes のER図を以下に示す．
      references shift_id FK
    }
  ```
+-->
 
-現状のテーブル構成
 ```mermaid
  %%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','primaryTextColor':'ffffff','primaryBorderColor':'#000000','secondaryColor':'#000000','lineColor':'#000000','noteTextColor':'#000000','noteBkgColor':'#000000','textColor':'#000000','fontSize':'20px','fontFamily':''},'themeCSS':"text.actor {font-size:24px !important;}"}}%%
  erDiagram
