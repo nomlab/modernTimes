@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @shift_type %>
+
+<div>
+  <%= link_to "Edit this shift type", edit_shift_type_path(@shift_type) %> |
+  <%= link_to "Back to shift types", shift_types_path %>
+
+  <%= button_to "Destroy this shift type", @shift_type, method: :delete %>
+</div>

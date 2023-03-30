@@ -12,8 +12,8 @@
   <% end %>
 
   <div>
-    <%= form.label :state, style: "display: block" %>
-    <%= form.number_field :state %>
+    <%= form.label :date, style: "display: block" %>
+    <%= form.date_field :date %>
   </div>
 
   <div>
@@ -22,8 +22,13 @@
   </div>
 
   <div>
-    <%= form.label :shift_id, style: "display: block" %>
-    <%= form.text_field :shift_id %>
+    <%= form.label :shift_type_id, style: "display: block" %>
+    <%= form.text_field :shift_type_id %>
+  </div>
+
+  <div>
+    <%= form.label :state, style: "display: block" %>
+    <%= form.number_field :state %>
   </div>
 
   <div>

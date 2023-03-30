@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :shift_types
   resources :assignments
   resources :nurses
   resources :shifts

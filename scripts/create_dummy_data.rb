@@ -27,29 +27,44 @@ end
   end
 end
 
-# Create shifts
-# 3ヶ月分の shift を作る
-# 2023年4月1日から，2023年6月30日までのシフトを作る
-# 1:日勤，2:準夜勤，3:深夜勤
+# Create shift_types
+#
+# | name   | kind |
+# |--------+------|
+# | 日勤   |    1 |
+# | 準夜勤 |    2 |
+# | 深夜勤 |    3 |
+# | 休み   |    4 |
+# | △     |    5 |
+# | 早     |    6 |
+# | 年     |    7 |
+# | 出     |    8 |
+# | 研     |    9 |
+# | 委     |   10 |
+# | 管     |   11 |
+# | CN     |   12 |
+# | 夏     |   13 |
+# | BD     |   14 |
+# | 特     |   15 |
 
-date_head = Date.new(2023, 4, 1)
-date_tail = Date.new(2023, 6, 30)
+shift_type_names = ["日勤", "準夜勤", "深夜勤", "休み", "△", "早", "年", "出", "研", "委", "管", "CN", "夏", "BD", "特"]
 
-(date_head..date_tail).each do |date|
-  (1..3).each do |shift_type|
-    unless Shift.find_by(date: date, shift_type: shift_type)
-      shift = Shift.new(date: date, shift_type: shift_type)
-      shift.save
-      puts "Save Shift: #{shift.date} #{shift.shift_type}"
-    end
+shift_type_names.each_with_index do |name, index|
+  unless ShiftType.find_by(name: name)
+    st = ShiftType.new(name: name, kind: index + 1)
+    st.save
+    puts "Save ShiftType: #{st.name} #{st.kind}"
   end
 end
 
 # Create assignments
+# 3ヶ月分の assignments を作る
+# 2023年4月1日から，2023年6月30日まで
+# 1:日勤，2:準夜勤，3:深夜勤
 
 # Shift に応じた看護師の必要人数を返す
-def number_of_nurses(date, shift_type)
-  case shift_type
+def number_of_nurses(date, shift_kind)
+  case shift_kind
   # 日勤: 8人以上 (土日祝は 7人)
   when 1
     # XXX: 祝日を考慮できていない!
@@ -67,14 +82,19 @@ def number_of_nurses(date, shift_type)
   end
 end
 
-Shift.all.each do |shift|
-  if shift.assignments.length == 0
-    nurses = Nurse.all.sample(number_of_nurses(shift.date, shift.shift_type))
+date_head = Date.new(2023, 4, 1)
+date_tail = Date.new(2023, 6, 30)
+
+(date_head..date_tail).each do |date|
+  # 1:日勤，2:準夜勤，3:深夜勤 をまず割当てる
+  (1..3).each do |kind|
+    shift_type = ShiftType.find_by(kind: kind)
+    nurses = Nurse.all.sample(number_of_nurses(date, kind))
     nurses.each do |nurse|
       state = rand(1..3)
-      assignment = Assignment.new(shift: shift, nurse: nurse, state: state)
+      assignment = Assignment.new(date: date, nurse: nurse, shift_type: shift_type, state: state)
       assignment.save
-      puts "Save Assignment: #{shift.date} #{shift.shift_type} → #{nurse.name} (#{state})"
+      puts "Save Assignment: #{date} #{shift_type.name} → #{nurse.name} (#{state})"
     end
   end
 end
