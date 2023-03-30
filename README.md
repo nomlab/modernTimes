@@ -1,13 +1,17 @@
 # modernTimes
 
-## TODO
+## Install for developpers
 
-- 25人の Nurse と 3ヶ月分の Shift のダミーデータを CSV で作る
-- CSV を ActiveRecord にCLIから直接挿入するスクリプトを書く
+``` shell
+git clone git@github.com:nomlab/modernTimes.git
+cd modernTimes
+bundle install
+bundle exec rake db:migrate RAILS_ENV=developmen
+# Insert dummy data:
+# bin/rails runner scripts/create_dummy_data.rb
+```
 
-
-# ER図
-
+# ER diagram
 <!-- 理想
 ```mermaid
  %%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','primaryTextColor':'ffffff','primaryBorderColor':'#000000','secondaryColor':'#000000','lineColor':'#000000','noteTextColor':'#000000','noteBkgColor':'#000000','textColor':'#000000','fontSize':'20px','fontFamily':''},'themeCSS':"text.actor {font-size:24px !important;}"}}%%
