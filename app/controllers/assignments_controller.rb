@@ -3,11 +3,15 @@ class AssignmentsController < ApplicationController
 
   # GET /assignments or /assignments.json
   def index
-    month = params[:month].to_s
-    if month =~ /(\d{4})(\d{2})/
-      @month = Date.new($1.to_i, $2.to_i)
+    today = Date.today
+
+    yyyymm = params[:month].to_s
+    yyyy, mm = /(\d{4})(\d{2})/.match(yyyymm).to_a.values_at(1,2).map(&:to_i)
+
+    if Date.valid_date?(yyyy, mm, 1)
+      @month = Date.new(yyyy, mm, 1)
     else
-      @month = Date.today
+      @month = Date.new(today.year, today.month, 1)
     end
     @assignments = Assignment.where(date: @month...(@month >> 1))
   end
