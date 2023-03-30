@@ -6,8 +6,8 @@ modernTimes のER図を以下に示す．
  erDiagram
    nurses }|--|| teams : "多対1"
    nurses }|--|| ladder_levels : "多対1"
-   nurses ||--|{ nurses_shifts : "1対多"
-   shifts ||--|{ nurses_shifts : "1対多"
+   nurses ||--|{ assignments : "1対多"
+   shifts ||--|{ assignments : "1対多"
    shifts }|--|| shift_types : "多対1"
    nurses {
      integer id PK
@@ -36,22 +36,22 @@ modernTimes のER図を以下に示す．
      integer id PK
      references shift_type_id FK
      date date
-     enum state "fixed,unfixed,requested"
+     integer state "fixed,unfixed,requested"
    }
    
-   nurses_shifts {
+   assignments {
    references nurse_id FK
    references shift_id FK
    }
  ```
 
-ラダーレベルと勤務形態のテーブルを用意しない案
+現状のテーブル構成
 ```mermaid
  %%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','primaryTextColor':'ffffff','primaryBorderColor':'#000000','secondaryColor':'#000000','lineColor':'#000000','noteTextColor':'#000000','noteBkgColor':'#000000','textColor':'#000000','fontSize':'20px','fontFamily':''},'themeCSS':"text.actor {font-size:24px !important;}"}}%%
  erDiagram
    nurses }|--|| teams : "多対1"
-   nurses ||--|{ nurses_shifts : "1対多"
-   shifts ||--|{ nurses_shifts : "1対多"
+   nurses ||--|{ assignments : "1対多"
+   shifts ||--|{ assignments : "1対多"
    nurses {
      integer id PK
      string name "看護師名"
@@ -68,10 +68,10 @@ modernTimes のER図を以下に示す．
      integer id PK
      string shift_name "勤務形態名"
      date date "日付"
-     enum state "fixed,unfixed,requested"
+     integer state "fixed,unfixed,requested"
    }
    
-   nurses_shifts {
+   assignments {
    references nurse_id FK
    references shift_id FK
    }
