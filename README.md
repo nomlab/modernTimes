@@ -59,7 +59,7 @@
  erDiagram
    nurses }|--|| teams : "多対1"
    nurses ||--|{ assignments : "1対多"
-   shifts ||--|{ assignments : "1対多"
+   assignments }|--|| shift_types : "多対1"
    nurses {
      integer id PK
      string name "氏名"
@@ -72,15 +72,17 @@
      string name "チーム名"
    }
 
-   shifts {
+   assignments {
      integer id PK
-     integer shift_type "1:日勤, 2:準夜勤, 3:深夜勤"
      date date "日付"
+     references nurse_id FK
+     references shift_type_id FK
+     integer state "fixed,unfixed,requested 等の状態を表す数"
    }
 
-   assignments {
-     references nurse_id FK
-     references shift_id FK
-     integer state "fixed,unfixed,requested 等の状態を表す数"
+   shift_types {
+     integer id PK
+     string name "日勤, 準夜勤, 深夜勤，休み等のシフト"
+     integer kind "値をどう扱うかの種別"
    }
  ```
