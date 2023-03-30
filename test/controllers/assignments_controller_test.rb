@@ -17,7 +17,7 @@ class AssignmentsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create assignment" do
     assert_difference("Assignment.count") do
-      post assignments_url, params: { assignment: { nurse_id: @assignment.nurse_id, shift_id: @assignment.shift_id } }
+      post assignments_url, params: { assignment: { nurse_id: @assignment.nurse_id, shift_id: @assignment.shift_id, state: @assignment.state } }
     end
 
     assert_redirected_to assignment_url(Assignment.last)
@@ -34,7 +34,7 @@ class AssignmentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update assignment" do
-    patch assignment_url(@assignment), params: { assignment: { nurse_id: @assignment.nurse_id, shift_id: @assignment.shift_id } }
+    patch assignment_url(@assignment), params: { assignment: { nurse_id: @assignment.nurse_id, shift_id: @assignment.shift_id, state: @assignment.state } }
     assert_redirected_to assignment_url(@assignment)
   end
 

@@ -4,7 +4,7 @@
 
 rails=./bin/rails
 
-$rails generate scaffold team name:string
-$rails generate scaffold shift date:date name:string state:integer
-$rails generate scaffold nurse name:string ladder_level:integer team:references
-$rails generate scaffold assignment nurse:references shift:references
+$rails generate scaffold team name:string --force
+$rails generate scaffold shift date:date shift_type:integer --force
+$rails generate scaffold nurse name:string ladder_level:integer team:references --force
+$rails generate scaffold assignment state:integer nurse:references shift:references --force

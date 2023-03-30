@@ -16,6 +16,7 @@ class AssignmentsTest < ApplicationSystemTestCase
 
     fill_in "Nurse", with: @assignment.nurse_id
     fill_in "Shift", with: @assignment.shift_id
+    fill_in "State", with: @assignment.state
     click_on "Create Assignment"
 
     assert_text "Assignment was successfully created"
@@ -28,6 +29,7 @@ class AssignmentsTest < ApplicationSystemTestCase
 
     fill_in "Nurse", with: @assignment.nurse_id
     fill_in "Shift", with: @assignment.shift_id
+    fill_in "State", with: @assignment.state
     click_on "Update Assignment"
 
     assert_text "Assignment was successfully updated"

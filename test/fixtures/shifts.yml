@@ -2,10 +2,8 @@
 
 one:
   date: 2023-03-30
-  name: MyString
-  state: 1
+  shift_type: 1
 
 two:
   date: 2023-03-30
-  name: MyString
-  state: 1
+  shift_type: 1

@@ -12,6 +12,11 @@
   <% end %>
 
   <div>
+    <%= form.label :state, style: "display: block" %>
+    <%= form.number_field :state %>
+  </div>
+
+  <div>
     <%= form.label :nurse_id, style: "display: block" %>
     <%= form.text_field :nurse_id %>
   </div>

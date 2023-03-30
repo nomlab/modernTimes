@@ -15,8 +15,7 @@ class ShiftsTest < ApplicationSystemTestCase
     click_on "New shift"
 
     fill_in "Date", with: @shift.date
-    fill_in "Name", with: @shift.name
-    fill_in "State", with: @shift.state
+    fill_in "Shift type", with: @shift.shift_type
     click_on "Create Shift"
 
     assert_text "Shift was successfully created"
@@ -28,8 +27,7 @@ class ShiftsTest < ApplicationSystemTestCase
     click_on "Edit this shift", match: :first
 
     fill_in "Date", with: @shift.date
-    fill_in "Name", with: @shift.name
-    fill_in "State", with: @shift.state
+    fill_in "Shift type", with: @shift.shift_type
     click_on "Update Shift"
 
     assert_text "Shift was successfully updated"

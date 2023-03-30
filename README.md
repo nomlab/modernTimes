@@ -15,33 +15,33 @@ modernTimes のER図を以下に示す．
      references ladder_level_id FK
      references team_id FK
    }
- 
+
    teams {
      integer id PK
      string name "チーム名"
    }
- 
+
    ladder_levels {
      integer id PK
      string name "ラダーレベル名"
      integer level "ベテランほど値が大きい"
    }
- 
+
    shift_types {
      integer id PK
      string name "シフト名"
    }
- 
+
    shifts {
      integer id PK
      references shift_type_id FK
      date date
-     integer state "fixed,unfixed,requested"
    }
-   
+
    assignments {
-   references nurse_id FK
-   references shift_id FK
+     integer state "fixed,unfixed,requested などの状態"
+     references nurse_id FK
+     references shift_id FK
    }
  ```
 
@@ -54,25 +54,25 @@ modernTimes のER図を以下に示す．
    shifts ||--|{ assignments : "1対多"
    nurses {
      integer id PK
-     string name "看護師名"
-     integer ladder_level "ベテランほど値が大きい"
+     string name "氏名"
+     integer ladder_level "1-5: ベテランほど大きい"
      references team_id FK
    }
- 
+
    teams {
      integer id PK
      string name "チーム名"
    }
- 
+
    shifts {
      integer id PK
-     string shift_name "勤務形態名"
+     integer shift_type "1:日勤, 2:準夜勤, 3:深夜勤"
      date date "日付"
-     integer state "fixed,unfixed,requested"
    }
-   
+
    assignments {
-   references nurse_id FK
-   references shift_id FK
+     references nurse_id FK
+     references shift_id FK
+     integer state "fixed,unfixed,requested 等の状態を表す数"
    }
  ```
