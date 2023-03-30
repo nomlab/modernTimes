@@ -1,6 +1,9 @@
 <p style="color: green"><%= notice %></p>
 
-<h1>Assignments</h1>
+<h1>Assignments (<%= @month.strftime("%Y-%m") %>)</h1>
+
+<%= link_to "←", assignments_path(month: (@month <<1).strftime("%Y%m")) %>
+<%= link_to "→", assignments_path(month: (@month >>1).strftime("%Y%m")) %>
 
 <div id="assignments">
   <% assignment_table = {} %>
@@ -22,6 +25,7 @@
       <% end %>
     </th>
     <% Nurse.all.each do |nurse| %>
+      <% assignment_table[nurse.id] ||= {} %>
       <tr>
         <td> <%= nurse.name %>
         <% (@month...(@month >> 1)).each do |date| %>
