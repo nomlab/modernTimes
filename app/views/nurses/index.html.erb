@@ -2,6 +2,10 @@
 
 <h1>Nurses</h1>
 
+<%= link_to "Sort by Name", sort: "name" %>
+<%= link_to "Sort by Team", sort: "teams.name" %>
+<%= link_to "Sort by Ladder_level", sort: "ladder_level" %>
+
 <div id="nurses">
   <% @nurses.each do |nurse| %>
     <%= render nurse %>

@@ -3,7 +3,11 @@ class NursesController < ApplicationController
 
   # GET /nurses or /nurses.json
   def index
-    @nurses = Nurse.all
+    if params[:sort]
+      @nurses = Nurse.joins(:team).order(params[:sort])
+    else
+      @nurses = Nurse.all
+    end
   end
 
   # GET /nurses/1 or /nurses/1.json
