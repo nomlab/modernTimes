@@ -2,9 +2,43 @@
 
 <h1>Nurses</h1>
 
-<%= link_to "Sort by Name", sort: "name" %>
-<%= link_to "Sort by Team", sort: "teams.name" %>
-<%= link_to "Sort by Ladder_level", sort: "ladder_level" %>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
+  絞り込み検索
+</button>
+
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <%= search_form_for @q, url: nurses_path, remote: true, html: { class: 'form-inline' } do |f| %>
+        <div class="modal-header">
+          <h5 class="modal-title" id="filterModalLabel">絞り込み</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <%= f.label :name_cont, '氏名' %>
+            <%= f.text_field :name_cont, class: 'form-control' %>
+          </div>
+          <div class="form-group">
+            <%= f.label :team_name_cont, 'チーム' %>
+            <%= f.text_field :team_name_cont, class: 'form-control' %>
+          </div>
+          <div class="form-group">
+            <%= f.label :ladder_level_cont, 'ラダーレベル' %>
+            <%= f.text_field :ladder_level_cont, class: 'form-control' %>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <%= f.submit '検索', class: 'btn btn-primary' %>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
 
 <div id="nurses">
   <% @nurses.each do |nurse| %>
