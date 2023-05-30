@@ -6,7 +6,7 @@
 git clone git@github.com:nomlab/modernTimes.git
 cd modernTimes
 bundle install
-bundle exec rake db:migrate RAILS_ENV=developmen
+bundle exec rails db:migrate RAILS_ENV=development
 # Insert dummy data:
 # bin/rails runner scripts/create_dummy_data.rb
 ```
