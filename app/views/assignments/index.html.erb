@@ -1,6 +1,7 @@
 <p style="color: green"><%= notice %></p>
 
 <h1>Assignments (<%= @month.strftime("%Y-%m") %>)</h1>
+<%= link_to "新規作成", new_assignment_path %>
 
 <%= link_to "←", assignments_path(month: (@month <<1).strftime("%Y%m")) %>
 <%= link_to "→", assignments_path(month: (@month >>1).strftime("%Y%m")) %>
@@ -35,5 +36,3 @@
     <% end %>
   </table>
 </div>
-
-<%= link_to "New assignment", new_assignment_path %>
