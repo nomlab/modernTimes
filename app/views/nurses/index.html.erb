@@ -34,7 +34,7 @@
     <% @nurses.each do |nurse| %>
       <tr>
         <td><%= nurse.name %></td>
-        <td><%= nurse.team.name %></td>
+        <td><%= link_to_if nurse.team.name, nurse.team.name, nurse.team %></td>
         <td><%= nurse.ladder_level %></td>
       </tr>
     <% end %>

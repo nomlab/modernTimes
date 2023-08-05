@@ -8,9 +8,10 @@
 
 <div id="teams">
   <% @teams.each do |team| %>
-    <%= render team %>
     <p>
-      <%= link_to "Show this team", team %>
+      <strong>チーム名:</strong>
+      <%= team.name %>
+      <div><%= link_to "詳細", team , class: "btn btn-outline-primary"%></div>
     </p>
   <% end %>
 </div>
