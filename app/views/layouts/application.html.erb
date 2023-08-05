@@ -10,9 +10,7 @@
   </head>
 
   <body>
-    <%= link_to "Assignments", controller: "assignments", action: "index" %>
-    <%= link_to "Nurses", controller: "nurses", action: "index" %>
-    <%= link_to "Teams", controller: "teams", action: "index" %>
+    <%= render partial: "layouts/header" %>
     <%= yield %>
   </body>
 </html>
