@@ -1,10 +1,44 @@
 <p style="color: green"><%= notice %></p>
 
-<%= render @nurse %>
+<div class="row">
+  <div class="col-lg-4 col-md-12"><h2><%= @nurse.name %>のページ</h2></div>
+  <div class="col-lg-6 col-md-0"></div>
+  <div class="col-lg-2 col-md-12"><%= link_to "看護師一覧へ", nurses_path, class: "btn btn-outline-primary" %></div>
+</div>
 
-<div>
-  <%= link_to "Edit this nurse", edit_nurse_path(@nurse) %> |
-  <%= link_to "Back to nurses", nurses_path %>
+<div class="row my-3">
+<div class="col-lg-3 col-md-6 d-flex align-items-center h5">ラダーレベル: <%= @nurse.ladder_level %></div>
+<div class="col-lg-3 col-md-6 d-flex align-items-center h5">チーム: <%= @nurse.team_id %></div>
+</div>
 
-  <%= button_to "Destroy this nurse", @nurse, method: :delete %>
+<%= link_to "←", nurse_path(@nurse.id, month: (@month <<1).strftime("%Y%m")) %>
+<%= link_to "→", nurse_path(@nurse.id, month: (@month >>1).strftime("%Y%m")) %>
+
+<div id="assignments">
+  <% assignment_table = {} %>
+  <% @assignments.each do |assignment| %>
+    <% date = assignment.date %>
+    <% nurse = assignment.nurse %>
+    <% name = assignment.shift_type.name %>
+    <% name_abbrev = name[0] %>
+    <% unless assignment_table[nurse.id] %>
+      <% assignment_table[nurse.id] = {} %>
+    <% end %>
+    <% assignment_table[nurse.id][date] = name_abbrev %>
+  <% end %>
+
+  <table border="1">
+    <th>
+      <% (@month...(@month >> 1)).each do |date| %>
+        <td><%= date.strftime("%d") %></td>
+      <% end %>
+    </th>
+      <% assignment_table[@nurse.id] ||= {} %>
+      <tr>
+        <td> <%= @nurse.name %>
+        <% (@month...(@month >> 1)).each do |date| %>
+          <td><%= assignment_table[@nurse.id][date] %></td>
+        <% end %>
+      </tr>
+  </table>
 </div>

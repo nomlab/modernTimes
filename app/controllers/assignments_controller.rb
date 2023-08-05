@@ -35,7 +35,7 @@ class AssignmentsController < ApplicationController
 
     respond_to do |format|
       if @assignment.save
-        format.html { redirect_to assignment_url(@assignment), notice: "Assignment was successfully created." }
+        format.html { redirect_to assignment_url(@assignment), notice: "割当が作成されました" }
         format.json { render :show, status: :created, location: @assignment }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -48,7 +48,7 @@ class AssignmentsController < ApplicationController
   def update
     respond_to do |format|
       if @assignment.update(assignment_params)
-        format.html { redirect_to assignment_url(@assignment), notice: "Assignment was successfully updated." }
+        format.html { redirect_to assignment_url(@assignment), notice: "割当が更新されました" }
         format.json { render :show, status: :ok, location: @assignment }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -62,7 +62,7 @@ class AssignmentsController < ApplicationController
     @assignment.destroy
 
     respond_to do |format|
-      format.html { redirect_to assignments_url, notice: "Assignment was successfully destroyed." }
+      format.html { redirect_to assignments_url, notice: "割当が削除されました" }
       format.json { head :no_content }
     end
   end

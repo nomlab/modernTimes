@@ -12,21 +12,21 @@
   <% end %>
 
   <div>
-    <%= form.label :name, style: "display: block" %>
+    <%= form.label :氏名, style: "display: block" %>
     <%= form.text_field :name %>
   </div>
 
   <div>
-    <%= form.label :ladder_level, style: "display: block" %>
-    <%= form.number_field :ladder_level %>
+    <%= form.label :ラダーレベル, style: "display: block" %>
+    <%= form.number_field :ladder_level, in: 1..5 %>
   </div>
 
   <div>
-    <%= form.label :team_id, style: "display: block" %>
-    <%= form.text_field :team_id %>
+    <%= form.label :チーム, style: "display: block" %>
+    <%= form.select :team_id, @teams.map { |t| [t.name, t.id] } %>
   </div>
 
   <div>
-    <%= form.submit %>
+    <%= form.submit "登録", class:"btn btn-secondary" %>
   </div>
 <% end %>

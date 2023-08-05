@@ -13,15 +13,28 @@ class NursesController < ApplicationController
 
   # GET /nurses/1 or /nurses/1.json
   def show
+    today = Date.today
+
+    yyyymm = params[:month].to_s
+    yyyy, mm = /(\d{4})(\d{2})/.match(yyyymm).to_a.values_at(1,2).map(&:to_i)
+
+    if Date.valid_date?(yyyy, mm, 1)
+      @month = Date.new(yyyy, mm, 1)
+    else
+      @month = Date.new(today.year, today.month, 1)
+    end
+    @assignments = Assignment.where(nurse_id: @nurse.id, date: @month...(@month >> 1))
   end
 
   # GET /nurses/new
   def new
     @nurse = Nurse.new
+    @teams = Team.distinct.joins(:nurses).select(:id, :name)
   end
 
   # GET /nurses/1/edit
   def edit
+    @teams = Team.distinct.joins(:nurses).select(:id, :name)
   end
 
   # POST /nurses or /nurses.json
@@ -30,7 +43,7 @@ class NursesController < ApplicationController
 
     respond_to do |format|
       if @nurse.save
-        format.html { redirect_to nurse_url(@nurse), notice: "Nurse was successfully created." }
+        format.html { redirect_to nurse_url(@nurse), notice: "看護師が登録されました" }
         format.json { render :show, status: :created, location: @nurse }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -43,7 +56,7 @@ class NursesController < ApplicationController
   def update
     respond_to do |format|
       if @nurse.update(nurse_params)
-        format.html { redirect_to nurse_url(@nurse), notice: "Nurse was successfully updated." }
+        format.html { redirect_to nurse_url(@nurse), notice: "看護師情報が更新されました" }
         format.json { render :show, status: :ok, location: @nurse }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -57,7 +70,7 @@ class NursesController < ApplicationController
     @nurse.destroy
 
     respond_to do |format|
-      format.html { redirect_to nurses_url, notice: "Nurse was successfully destroyed." }
+      format.html { redirect_to nurses_url, notice: "看護師が削除されました" }
       format.json { head :no_content }
     end
   end
