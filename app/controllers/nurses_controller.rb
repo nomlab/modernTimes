@@ -24,6 +24,13 @@ class NursesController < ApplicationController
       @month = Date.new(today.year, today.month, 1)
     end
     @assignments = Assignment.where(nurse_id: @nurse.id, date: @month...(@month >> 1))
+    @shift_types = ShiftType.all
+    @shift_type_counts = {}
+    @total = 0
+    @shift_types.each do |shift_type|
+      @shift_type_counts[shift_type.name] = count_shifts_by_shift_type(shift_type)
+      @total += @shift_type_counts[shift_type.name]
+    end
   end
 
   # GET /nurses/new
@@ -84,5 +91,9 @@ class NursesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def nurse_params
       params.require(:nurse).permit(:name, :ladder_level, :team_id)
+    end
+
+    def count_shifts_by_shift_type(shift_type)
+      @assignments.where(shift_type_id: shift_type.id).count
     end
 end

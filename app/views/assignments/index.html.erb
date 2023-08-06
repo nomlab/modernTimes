@@ -10,6 +10,7 @@
 <%= link_to "→", assignments_path(month: (@month >>1).strftime("%Y%m")) %>
 
 <div id="assignments">
+  <% @assignments_by_nurse = @assignments.group_by(&:nurse_id) %>
   <% assignment_table = {} %>
   <% @assignments.each do |assignment| %>
     <% date = assignment.date %>
@@ -27,14 +28,24 @@
       <% (@month...(@month >> 1)).each do |date| %>
         <td><%= date.strftime("%d") %></td>
       <% end %>
+      <td><%= "日" %></td>
+      <td><%= "準" %></td>
+      <td><%= "深" %></td>
+      <td><%= "休" %></td>
     </th>
     <% Nurse.all.each do |nurse| %>
-      <% assignment_table[nurse.id] ||= {} %>
       <tr>
-        <td> <%= nurse.name %>
+        <td><%= link_to_if nurse.name, nurse.name, nurse %></td>
+        <% nurse_assignments = @assignments_by_nurse[nurse.id] || [] %>
         <% (@month...(@month >> 1)).each do |date| %>
-          <td><%= assignment_table[nurse.id][date] %></td>
+          <% assignment = nurse_assignments.find { |a| a.date == date } %>
+          <% shift_name = assignment&.shift_type&.name&.first || "休" %>
+          <td><%= shift_name %></td>
         <% end %>
+        <td class="right-align"><%= @nurse_shift_counts[nurse.id]["日勤"] %></td>
+        <td class="right-align"><%= @nurse_shift_counts[nurse.id]["準夜勤"] %></td>
+        <td class="right-align"><%= @nurse_shift_counts[nurse.id]["深夜勤"] %></td>
+        <td class="right-align"><%= ((@month >> 1) - @month).to_i - @nurse_shift_counts[nurse.id].values.sum %></td>
       </tr>
     <% end %>
   </table>

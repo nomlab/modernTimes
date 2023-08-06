@@ -32,13 +32,22 @@
       <% (@month...(@month >> 1)).each do |date| %>
         <td><%= date.strftime("%d") %></td>
       <% end %>
+      <td><%= "日" %></td>
+      <td><%= "準" %></td>
+      <td><%= "深" %></td>
+      <td><%= "休" %></td>
     </th>
-      <% assignment_table[@nurse.id] ||= {} %>
-      <tr>
-        <td> <%= @nurse.name %>
-        <% (@month...(@month >> 1)).each do |date| %>
-          <td><%= assignment_table[@nurse.id][date] %></td>
-        <% end %>
-      </tr>
+    <% assignment_table[@nurse.id] ||= {} %>
+    <tr>
+    <td><%= link_to_if @nurse.name, @nurse.name, @nurse %></td>
+      <% (@month...(@month >> 1)).each do |date| %>
+        <% shift_name = assignment_table[@nurse.id][date] || "休" %>
+        <td><%= shift_name %></td>
+      <% end %>
+    <td class="right-align"><%= @shift_type_counts["日勤"] %></td>
+    <td class="right-align"><%= @shift_type_counts["準夜勤"] %></td>
+    <td class="right-align"><%= @shift_type_counts["深夜勤"] %></td>
+    <td class="right-align"><%= ((@month >> 1) - @month).to_i  - @total %></td>
+    </tr>
   </table>
 </div>

@@ -14,6 +14,10 @@ class AssignmentsController < ApplicationController
       @month = Date.new(today.year, today.month, 1)
     end
     @assignments = Assignment.where(date: @month...(@month >> 1))
+    @shift_types = ShiftType.all
+    @nurse_shift_counts = count_shifts_by_nurse
+
+    @total = @shift_types.sum { |shift_type| @nurse_shift_counts.values.sum { |counts| counts[shift_type.name] || 0 } }
   end
 
   # GET /assignments/1 or /assignments/1.json
@@ -76,5 +80,22 @@ class AssignmentsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def assignment_params
       params.require(:assignment).permit(:date, :nurse_id, :shift_type_id, :state)
+    end
+
+    def count_shifts_by_shift_type(shift_type)
+      shift_type.assignments.where(date: @month...(@month >> 1)).count
+    end
+
+    def count_shifts_by_nurse
+      nurse_shift_counts = {}
+      Nurse.all.each do |nurse|
+        nurse_assignments = @assignments.where(nurse_id: nurse.id)
+        shift_counts = {}
+        @shift_types.each do |shift_type|
+          shift_counts[shift_type.name] = nurse_assignments.where(shift_type_id: shift_type.id).count
+        end
+        nurse_shift_counts[nurse.id] = shift_counts
+      end
+      nurse_shift_counts
     end
 end
