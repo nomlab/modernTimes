@@ -5,4 +5,7 @@ class Team < ApplicationRecord
     %w[created_at id name updated_at]
   end
 
+  def self.ransackable_associations(auth_object = nil)
+    ["nurses"]
+  end
 end

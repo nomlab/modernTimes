@@ -6,12 +6,13 @@
   <div class="col-lg-2 col-md-12"><%= link_to "チーム一覧へ", teams_path, class: "btn btn-outline-primary" %></div>
 </div>
 
-<%= search_form_for @q do |f| %>
+<%= search_form_for @q, url: team_path(@team), method: :get do |f| %>
   <div class="form-group">
     <%= f.label :name_cont, "氏名" %>
     <%= f.search_field :name_cont, class: "form-control" %>
   </div>
   <%= f.submit "検索", class: "btn btn-primary" %>
+  <%= link_to "クリア", team_path(@team), class: "btn btn-danger" %>
 <% end %>
 
 <table class="table">
