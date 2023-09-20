@@ -1,3 +1,15 @@
+GIT
+  remote: https://github.com/ueno12345/swallow.git
+  revision: 03e2f7749366cb4d0947bef52061594b5fe00f66
+  branch: v2
+  specs:
+    swallow (0.1.0)
+      activesupport
+      nokogiri
+      ravensat
+      rufo
+      sycamore
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -174,11 +186,13 @@ GEM
       activerecord (>= 6.1.5)
       activesupport (>= 6.1.5)
       i18n
+    ravensat (1.1.1)
     regexp_parser (2.7.0)
     reline (0.3.3)
       io-console (~> 0.5)
     rexml (3.2.5)
     rubyzip (2.3.2)
+    rufo (0.16.2)
     sassc (2.4.0)
       ffi (~> 1.9)
     sassc-rails (2.1.2)
@@ -201,6 +215,7 @@ GEM
     sqlite3 (1.6.2-x86_64-linux)
     stimulus-rails (1.2.1)
       railties (>= 6.0.0)
+    sycamore (0.3.1)
     thor (1.2.1)
     tilt (2.1.0)
     timeout (0.3.2)
@@ -245,6 +260,7 @@ DEPENDENCIES
   sprockets-rails
   sqlite3 (~> 1.4)
   stimulus-rails
+  swallow!
   turbo-rails
   tzinfo-data
   web-console
