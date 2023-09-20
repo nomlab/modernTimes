@@ -1,13 +1,13 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  date: 2023-03-30
-  nurse: one
+  date: 2023-09-20
+  rails_nurse: one
   shift_type: one
   state: 1
 
 two:
-  date: 2023-03-30
-  nurse: two
+  date: 2023-09-20
+  rails_nurse: two
   shift_type: two
   state: 1

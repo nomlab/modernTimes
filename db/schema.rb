@@ -10,25 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_30_080852) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_20_075802) do
   create_table "assignments", force: :cascade do |t|
     t.date "date"
-    t.integer "nurse_id", null: false
+    t.integer "rails_nurse_id", null: false
     t.integer "shift_type_id", null: false
     t.integer "state"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["nurse_id"], name: "index_assignments_on_nurse_id"
+    t.index ["rails_nurse_id"], name: "index_assignments_on_rails_nurse_id"
     t.index ["shift_type_id"], name: "index_assignments_on_shift_type_id"
   end
 
-  create_table "nurses", force: :cascade do |t|
+  create_table "rails_nurses", force: :cascade do |t|
     t.string "name"
     t.integer "ladder_level"
     t.integer "team_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["team_id"], name: "index_nurses_on_team_id"
+    t.index ["team_id"], name: "index_rails_nurses_on_team_id"
   end
 
   create_table "shift_types", force: :cascade do |t|
@@ -44,7 +44,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_30_080852) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "assignments", "nurses"
+  add_foreign_key "assignments", "rails_nurses"
   add_foreign_key "assignments", "shift_types"
-  add_foreign_key "nurses", "teams"
+  add_foreign_key "rails_nurses", "teams"
 end

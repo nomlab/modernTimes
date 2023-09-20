@@ -88,8 +88,8 @@ class AssignmentsController < ApplicationController
 
     def count_shifts_by_nurse
       nurse_shift_counts = {}
-      Nurse.all.each do |nurse|
-        nurse_assignments = @assignments.where(nurse_id: nurse.id)
+      RailsNurse.all.each do |nurse|
+        nurse_assignments = @assignments.where(rails_nurse_id: nurse.id)
         shift_counts = {}
         @shift_types.each do |shift_type|
           shift_counts[shift_type.name] = nurse_assignments.where(shift_type_id: shift_type.id).count

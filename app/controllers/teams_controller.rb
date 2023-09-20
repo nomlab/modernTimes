@@ -9,7 +9,7 @@ class TeamsController < ApplicationController
   # GET /teams/1 or /teams/1.json
   def show
     @team = Team.find(params[:id])
-    @q = @team.nurses.ransack(params[:q], team_id_eq: @team.id)
+    @q = @team.rails_nurses.ransack(params[:q], team_id_eq: @team.id)
     @nurses =  @q.result(distinct: true)
   end
 

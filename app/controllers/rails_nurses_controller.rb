@@ -1,13 +1,13 @@
-class NursesController < ApplicationController
+class RailsNursesController < ApplicationController
   before_action :set_nurse, only: %i[ show edit update destroy ]
 
   # GET /nurses or /nurses.json
   def index
-    @q = Nurse.ransack(params[:q])
+    @q = RailsNurse.ransack(params[:q])
     @nurses = @q.result(distinct: true)
   
     if @nurses.blank?
-      @nurses = Nurse.all
+      @nurses = RailsNurse.all
     end
   end 
 
@@ -23,7 +23,7 @@ class NursesController < ApplicationController
     else
       @month = Date.new(today.year, today.month, 1)
     end
-    @assignments = Assignment.where(nurse_id: @nurse.id, date: @month...(@month >> 1))
+    @assignments = Assignment.where(rails_nurse_id: @nurse.id, date: @month...(@month >> 1))
     @shift_types = ShiftType.all
     @shift_type_counts = {}
     @total = 0
@@ -35,22 +35,22 @@ class NursesController < ApplicationController
 
   # GET /nurses/new
   def new
-    @nurse = Nurse.new
-    @teams = Team.distinct.joins(:nurses).select(:id, :name)
+    @nurse = RailsNurse.new
+    @teams = Team.distinct.joins(:rails_nurses).select(:id, :name)
   end
 
   # GET /nurses/1/edit
   def edit
-    @teams = Team.distinct.joins(:nurses).select(:id, :name)
+    @teams = Team.distinct.joins(:rails_nurses).select(:id, :name)
   end
 
   # POST /nurses or /nurses.json
   def create
-    @nurse = Nurse.new(nurse_params)
+    @nurse = RailsNurse.new(nurse_params)
 
     respond_to do |format|
       if @nurse.save
-        format.html { redirect_to nurse_url(@nurse), notice: "看護師が登録されました" }
+        format.html { redirect_to rails_nurse_url(@nurse), notice: "看護師が登録されました" }
         format.json { render :show, status: :created, location: @nurse }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -63,7 +63,7 @@ class NursesController < ApplicationController
   def update
     respond_to do |format|
       if @nurse.update(nurse_params)
-        format.html { redirect_to nurse_url(@nurse), notice: "看護師情報が更新されました" }
+        format.html { redirect_to rails_nurse_url(@nurse), notice: "看護師情報が更新されました" }
         format.json { render :show, status: :ok, location: @nurse }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -77,7 +77,7 @@ class NursesController < ApplicationController
     @nurse.destroy
 
     respond_to do |format|
-      format.html { redirect_to nurses_url, notice: "看護師が削除されました" }
+      format.html { redirect_to rails_nurses_url, notice: "看護師が削除されました" }
       format.json { head :no_content }
     end
   end
@@ -85,12 +85,12 @@ class NursesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_nurse
-      @nurse = Nurse.find(params[:id])
+      @nurse = RailsNurse.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
     def nurse_params
-      params.require(:nurse).permit(:name, :ladder_level, :team_id)
+      params.require(:rails_nurse).permit(:name, :ladder_level, :team_id)
     end
 
     def count_shifts_by_shift_type(shift_type)

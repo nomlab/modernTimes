@@ -1,6 +1,6 @@
-class CreateNurses < ActiveRecord::Migration[7.0]
+class CreateRailsNurses < ActiveRecord::Migration[7.0]
   def change
-    create_table :nurses do |t|
+    create_table :rails_nurses do |t|
       t.string :name
       t.integer :ladder_level
       t.references :team, null: false, foreign_key: true

@@ -1,48 +1,48 @@
 require "test_helper"
 
-class NursesControllerTest < ActionDispatch::IntegrationTest
+class RailsNursesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @nurse = nurses(:one)
   end
 
   test "should get index" do
-    get nurses_url
+    get rails_nurses_url
     assert_response :success
   end
 
   test "should get new" do
-    get new_nurse_url
+    get new_rails_nurse_url
     assert_response :success
   end
 
   test "should create nurse" do
-    assert_difference("Nurse.count") do
-      post nurses_url, params: { nurse: { ladder_level: @nurse.ladder_level, name: @nurse.name, team_id: @nurse.team_id } }
+    assert_difference("RailsNurse.count") do
+      post rails_nurses_url, params: { rails_nurse: { ladder_level: @nurse.ladder_level, name: @nurse.name, team_id: @nurse.team_id } }
     end
 
-    assert_redirected_to nurse_url(Nurse.last)
+    assert_redirected_to rails_nurse_url(RailsNurse.last)
   end
 
   test "should show nurse" do
-    get nurse_url(@nurse)
+    get rails_nurse_url(@nurse)
     assert_response :success
   end
 
   test "should get edit" do
-    get edit_nurse_url(@nurse)
+    get edit_rails_nurse_url(@nurse)
     assert_response :success
   end
 
   test "should update nurse" do
-    patch nurse_url(@nurse), params: { nurse: { ladder_level: @nurse.ladder_level, name: @nurse.name, team_id: @nurse.team_id } }
-    assert_redirected_to nurse_url(@nurse)
+    patch rails_nurse_url(@nurse), params: { rails_nurse: { ladder_level: @nurse.ladder_level, name: @nurse.name, team_id: @nurse.team_id } }
+    assert_redirected_to rails_nurse_url(@nurse)
   end
 
   test "should destroy nurse" do
-    assert_difference("Nurse.count", -1) do
-      delete nurse_url(@nurse)
+    assert_difference("RailsNurse.count", -1) do
+      delete rails_nurse_url(@nurse)
     end
 
-    assert_redirected_to nurses_url
+    assert_redirected_to rails_nurses_url
   end
 end

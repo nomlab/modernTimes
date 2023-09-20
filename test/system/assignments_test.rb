@@ -15,7 +15,7 @@ class AssignmentsTest < ApplicationSystemTestCase
     click_on "New assignment"
 
     fill_in "Date", with: @assignment.date
-    fill_in "Nurse", with: @assignment.nurse_id
+    fill_in "Rails nurse", with: @assignment.rails_nurse_id
     fill_in "Shift type", with: @assignment.shift_type_id
     fill_in "State", with: @assignment.state
     click_on "Create Assignment"
@@ -29,7 +29,7 @@ class AssignmentsTest < ApplicationSystemTestCase
     click_on "Edit this assignment", match: :first
 
     fill_in "Date", with: @assignment.date
-    fill_in "Nurse", with: @assignment.nurse_id
+    fill_in "Rails nurse", with: @assignment.rails_nurse_id
     fill_in "Shift type", with: @assignment.shift_type_id
     fill_in "State", with: @assignment.state
     click_on "Update Assignment"

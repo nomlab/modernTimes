@@ -17,11 +17,11 @@ end
 
 ('A'..'Z').each do |name|
   nurse_name = "Nurse #{name}"
-  unless Nurse.find_by(name: nurse_name)
+  unless RailsNurse.find_by(name: nurse_name)
     level = rand(1..5)
     team_name = "Team#{rand(1..3)}"
     team = Team.find_by(name: team_name)
-    nurse = Nurse.new(name: nurse_name, team: team, ladder_level: level)
+    nurse = RailsNurse.new(name: nurse_name, team: team, ladder_level: level)
     nurse.save
     puts "Save Nurse: #{nurse.name}"
   end
@@ -87,14 +87,14 @@ date_tail = Date.new(2023, 6, 30)
 
 (date_head..date_tail).each do |date|
   # 1:日勤，2:準夜勤，3:深夜勤 をまず割当てる
-  unassigned_nurses = Nurse.all
+  unassigned_nurses = RailsNurse.all
   (1..3).each do |kind|
     shift_type = ShiftType.find_by(kind: kind)
     nurses = unassigned_nurses.sample(number_of_nurses(date, kind))
     unassigned_nurses -= nurses
     nurses.each do |nurse|
       state = rand(1..3)
-      assignment = Assignment.new(date: date, nurse: nurse, shift_type: shift_type, state: state)
+      assignment = Assignment.new(date: date, rails_nurse: nurse, shift_type: shift_type, state: state)
       assignment.save
       puts "Save Assignment: #{date} #{shift_type.name} → #{nurse.name} (#{state})"
     end

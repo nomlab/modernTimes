@@ -1,4 +1,4 @@
 class Assignment < ApplicationRecord
-  belongs_to :nurse
+  belongs_to :rails_nurse
   belongs_to :shift_type
 end

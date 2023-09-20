@@ -1,4 +1,4 @@
-class Nurse < ApplicationRecord
+class RailsNurse < ApplicationRecord
   belongs_to :team
   has_many :assignments
 
@@ -9,5 +9,4 @@ class Nurse < ApplicationRecord
   def self.ransackable_associations(auth_object = nil)
     %w[assignments team]
   end
-
 end
