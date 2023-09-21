@@ -1,0 +1,8 @@
+<h1>スケジュール生成</h1>
+
+<%= form_with url: solve_path do |form| %>
+  <%= form.file_field :file %>
+  <%= form.submit "入力" %>
+<% end %>
+
+<%= @html %>

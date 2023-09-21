@@ -1,4 +1,6 @@
 class AssignmentsController < ApplicationController
+  include Swallow
+
   before_action :set_assignment, only: %i[ show edit update destroy ]
 
   # GET /assignments or /assignments.json
@@ -69,6 +71,64 @@ class AssignmentsController < ApplicationController
       format.html { redirect_to assignments_url, notice: "割当が削除されました" }
       format.json { head :no_content }
     end
+  end
+
+  def index_solve
+  end
+
+  def solve
+    option = { format: "auk", solver: "minisat", debug: false }
+
+    OptionParser.new do |opt|
+      opt.banner = "Usage: swallow [options] <auk_file>"
+      opt.on("-d", "--debug", "                       (default: false)") { |v| option[:debug] = v }
+      opt.on("-f", "--format [VALUE]", ["auk", "html", "csv"], "[auk | html | csv]     (default: auk)") do |v|
+        option[:format] = v
+      end
+      opt.on("-s", "--solver [VALUE]", "<solver name>          (default: minisat)") { |v| option[:solver] = v }
+
+      opt.parse!(ARGV)
+    end
+
+    file = params[:file]
+
+    # AUK Parser
+    parser = AUKParser.new
+    parser.parse file.read(ARGV[0]) if ARGV[0]
+  
+    ast = parser.ast
+    # SAT Encoder
+    ptable = PropTable.new(ast)
+
+    formula = ast.to_cnf(ptable)
+
+    # Solving
+    solver = Ravensat::Solver.new(option[:solver])
+    if solver.solve formula, solver_log: option[:debug]
+      # SAT Decoding
+      # TODO: Make Decode Class
+      ptable.group_by { |i| i.nurse.name }.each_value do |nrs_ptable|
+        timeslots = []
+        nurse = nrs_ptable.first.nurse
+        nrs_ptable.select { |i| i.value.value }.each do |e|
+          timeslots.append e.timeslot.name
+        end
+        nurse.domain.update(timeslots.uniq, :timeslots)
+      end
+    else
+      puts "UNSAT"
+      exit
+    end
+    
+    case option[:format]
+      when "auk" then puts ast.to_auk
+      when "html" then puts ast.to_html
+      # when "csv" then puts ast.to_csv
+    end
+
+    @html = ast.to_html
+    p @html
+    redirect_to solve_path 
   end
 
   private
