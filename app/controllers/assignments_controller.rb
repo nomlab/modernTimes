@@ -73,7 +73,8 @@ class AssignmentsController < ApplicationController
     end
   end
 
-  def index_solve
+  def solve_index
+    @html = params[:result]
   end
 
   def solve
@@ -91,10 +92,11 @@ class AssignmentsController < ApplicationController
     end
 
     file = params[:file]
-
+    p "AAAAAA" if file 
+    p "CCCCCCCCCCCCCCCCCCCCCC"
     # AUK Parser
     parser = AUKParser.new
-    parser.parse file.read(ARGV[0]) if ARGV[0]
+    parser.parse File.read(file) if file
   
     ast = parser.ast
     # SAT Encoder
@@ -127,8 +129,7 @@ class AssignmentsController < ApplicationController
     end
 
     @html = ast.to_html
-    p @html
-    redirect_to solve_path 
+    redirect_to solve_path(result: @html)
   end
 
   private
