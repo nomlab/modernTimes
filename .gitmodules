@@ -1,0 +1,3 @@
+[submodule "vendor/assets/javascripts/blockly"]
+	path = vendor/assets/javascripts/blockly
+	url = https://github.com/google/blockly.git

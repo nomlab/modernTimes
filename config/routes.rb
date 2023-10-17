@@ -7,6 +7,9 @@ Rails.application.routes.draw do
 
   get "/solve(/:result)", to: "assignments#solve_index", as: "solve_index"
   post "/solve", to: "assignments#solve", as: "solve"
+  get "/blockly", to: "assignments#blockly_index", as: "blockly_index"
+
+  post '/blocks/run', to: 'blocks#run'
 
   # Defines the root path route ("/")
   root "assignments#index"

@@ -1,0 +1,26 @@
+<head>Blockly</head>
+
+<!-- Blocklyエディタを表示するための要素 -->
+<div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
+
+<!-- ツールボックスの設定 -->
+<xml id="toolbox" style="display:none">
+  <!-- ツールボックス内のブロックを定義 -->
+  <block type="math_number"></block>
+  <block type="text"></block>
+  <!-- 他のブロックを追加できます -->
+</xml>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var workspace = Blockly.inject('blocklyDiv', {
+        toolbox: document.getElementById('toolbox'),  // ツールボックスの設定
+        grid: {
+          spacing: 20,
+          length: 3,
+          colour: '#ccc',
+          snap: true
+        }
+      });
+    });
+  </script>
