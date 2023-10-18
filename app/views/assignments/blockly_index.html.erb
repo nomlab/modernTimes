@@ -1,26 +1,64 @@
-<head>Blockly</head>
+<h1>Blockly</h1>
 
-<!-- Blocklyエディタを表示するための要素 -->
-<div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
+<div id="blocklyDiv" style="height: 300px; width: 600px;"></div>
 
-<!-- ツールボックスの設定 -->
-<xml id="toolbox" style="display:none">
-  <!-- ツールボックス内のブロックを定義 -->
-  <block type="math_number"></block>
-  <block type="text"></block>
-  <!-- 他のブロックを追加できます -->
+<xml id="toolbox" style="display: none">
+  <category name="Logic" colour="210">
+    <block type="controls_if"></block>
+    <block type="logic_compare"></block>
+    <block type="logic_operation"></block>
+    <block type="logic_negate"></block>
+    <block type="logic_boolean"></block>
+  </category>
+  <category name="Loops" colour="120">
+    <block type="controls_repeat_ext"></block>
+    <block type="controls_whileUntil"></block>
+  </category>
+  <category name="Math" colour="230">
+    <block type="math_number"></block>
+    <block type="math_arithmetic"></block>
+    <block type="math_single"></block>
+  </category>
+  <category name="Text" colour="180">
+    <block type="text"></block>
+    <block type="text_print"></block>
+  </category>
 </xml>
 
+<p>
+  <button onclick="showCode()">Show JavaScript</button>
+  <button onclick="runCode()">Run JavaScript</button>
+</p>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var workspace = Blockly.inject('blocklyDiv', {
-        toolbox: document.getElementById('toolbox'),  // ツールボックスの設定
-        grid: {
-          spacing: 20,
-          length: 3,
-          colour: '#ccc',
-          snap: true
-        }
-      });
+  document.addEventListener('DOMContentLoaded', function() {
+    var workspace = Blockly.inject('blocklyDiv', {
+      toolbox: document.getElementById('toolbox'), 
+      var workspace;
+      grid: {
+        spacing: 20,
+        length: 3,
+        colour: '#ccc',
+        snap: true
+      }
     });
-  </script>
+  });
+
+  function showCode() {
+    Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+    var code = Blockly.JavaScript.workspaceToCode(workspace);
+    alert(code);
+  }
+
+  function runCode() {
+    window.LoopTrap = 1000;
+    Blockly.JavaScript.INFINITE_LOOP_TRAP = 
+        'if (--window.LoopTrap === 0) throw "Infinite loop.";\n';
+    var code = Blockly.JavaScript.workspaceToCode(workspace);
+    try {
+      eval(code);
+    } catch (e) {
+      alert(e);
+    }
+  }
+</script>
