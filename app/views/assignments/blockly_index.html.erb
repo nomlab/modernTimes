@@ -1,7 +1,11 @@
 <h1>Blockly</h1>
 
-<div id="blocklyDiv" style="height: 300px; width: 600px;"></div>
+<p>
+  <button onclick="showCode()">Show JavaScript</button>
+  <button onclick="runCode()">Run JavaScript</button>
+</p>
 
+<div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
 <xml id="toolbox" style="display: none">
   <category name="Logic" colour="210">
     <block type="controls_if"></block>
@@ -25,40 +29,23 @@
   </category>
 </xml>
 
-<p>
-  <button onclick="showCode()">Show JavaScript</button>
-  <button onclick="runCode()">Run JavaScript</button>
-</p>
-
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var workspace = Blockly.inject('blocklyDiv', {
-      toolbox: document.getElementById('toolbox'), 
-      var workspace;
-      grid: {
-        spacing: 20,
-        length: 3,
-        colour: '#ccc',
-        snap: true
-      }
-    });
-  });
-
-  function showCode() {
-    Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
-    var code = Blockly.JavaScript.workspaceToCode(workspace);
-    alert(code);
-  }
-
-  function runCode() {
-    window.LoopTrap = 1000;
-    Blockly.JavaScript.INFINITE_LOOP_TRAP = 
-        'if (--window.LoopTrap === 0) throw "Infinite loop.";\n';
-    var code = Blockly.JavaScript.workspaceToCode(workspace);
-    try {
-      eval(code);
-    } catch (e) {
-      alert(e);
-    }
-  }
+var workspace = Blockly.inject('blocklyDiv', {
+  toolbox: document.getElementById('toolbox'), 
+  grid: {
+    spacing: 20,
+    length: 3,
+    color: '#ccc',
+    snap: true
+  },
+  trashcan: true,
+  zoom: {
+    controls: true,
+    wheel: true,
+    startScale: 1.0,
+    maxScale: 3,
+    minScale: 0.3,
+    scaleSpeed: 1.2,
+  },
+});
 </script>
