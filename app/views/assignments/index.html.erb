@@ -5,7 +5,6 @@
   <div class="col-lg-6 col-md-0"></div>
 
 </div>
-
 <%= link_to "←", assignments_path(month: (@month <<1).strftime("%Y%m")) %>
 <%= link_to "→", assignments_path(month: (@month >>1).strftime("%Y%m")) %>
 
@@ -23,7 +22,7 @@
     <% assignment_table[nurse.id][date] = name_abbrev %>
   <% end %>
 
-  <table border="1">
+  <table border="1" oncontextmenu="return false;">
     <th>
       <% (@month...(@month >> 1)).each do |date| %>
         <td class="right-align"><%= date.strftime("%d") %></td>
@@ -35,12 +34,12 @@
     </th>
     <% RailsNurse.all.each do |nurse| %>
       <tr>
-        <td class="left-align"><%= link_to_if nurse.name, nurse.name, nurse %></td>
+        <th class="left-align"><%= link_to_if nurse.name, nurse.name, nurse %></th>
         <% nurse_assignments = @assignments_by_nurse[nurse.id] || [] %>
         <% (@month...(@month >> 1)).each do |date| %>
           <% assignment = nurse_assignments.find { |a| a.date == date } %>
           <% shift_name = assignment&.shift_type&.name&.first || "休" %>
-          <td class="right-align"><%= shift_name %></td>
+          <td class="right-align" id="shift_type"><%= shift_name %></td>
         <% end %>
         <td class="right-align"><%= @nurse_shift_counts[nurse.id]["日勤"] %></td>
         <td class="right-align"><%= @nurse_shift_counts[nurse.id]["準夜勤"] %></td>
@@ -50,3 +49,24 @@
     <% end %>
   </table>
 </div>
+
+<script>
+const shift_type_el = document.querySelectorAll("#shift_type");
+const shift_type_lists = ["日","準","深","休"];
+
+
+for(let i = 0; i < shift_type_el.length; i++){
+  shift_type_el[i].addEventListener("contextmenu",function(){
+    for(let j = 0; j < shift_type_lists.length; j++){
+      if(shift_type_el[i].textContent == shift_type_lists[j]){
+        const next_shift_type = shift_type_lists[(j+1)%shift_type_lists.length];
+        console.log(next_shift_type);
+        shift_type_el[i].textContent = next_shift_type;
+        
+        break;
+      }
+    }
+  });
+}
+
+</script>

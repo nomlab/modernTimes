@@ -1,7 +1,7 @@
 class AssignmentsController < ApplicationController
   include Swallow
 
-  before_action :set_assignment, only: %i[ show edit update destroy ]
+  #before_action :set_assignment, only: %i[ show edit update destroy ]
 
   # GET /assignments or /assignments.json
   def index
