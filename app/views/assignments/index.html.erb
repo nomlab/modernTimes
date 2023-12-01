@@ -8,7 +8,7 @@
 <%= link_to "←", assignments_path(month: (@month <<1).strftime("%Y%m")) %>
 <%= link_to "→", assignments_path(month: (@month >>1).strftime("%Y%m")) %>
 
-<div id="assignments">
+<div id="assignments" data-turbo-frame="assignments">
   <% @assignments_by_nurse = @assignments.group_by(&:rails_nurse_id) %>
   <% assignment_table = {} %>
   <% @assignments.each do |assignment| %>
@@ -22,15 +22,15 @@
     <% assignment_table[nurse.id][date] = name_abbrev %>
   <% end %>
 
-  <table border="1" oncontextmenu="return false;">
+  <table border="1" oncontextmenu="return false;" class="bg-off">
     <th>
       <% (@month...(@month >> 1)).each do |date| %>
         <td class="right-align"><%= date.strftime("%d") %></td>
       <% end %>
-      <td class="right-align"><%= "日" %></td>
-      <td class="right-align"><%= "準" %></td>
-      <td class="right-align"><%= "深" %></td>
-      <td class="right-align"><%= "休" %></td>
+      <td class="right-align day bg-day"><%= "日" %></td>
+      <td class="right-align sem bg-sem"><%= "準" %></td>
+      <td class="right-align ngt bg-ngt"><%= "深" %></td>
+      <td class="right-align off bg-off"><%= "休" %></td>
     </th>
     <% RailsNurse.all.each do |nurse| %>
       <tr>
@@ -41,10 +41,10 @@
           <% shift_name = assignment&.shift_type&.name&.first || "休" %>
           <td class="right-align" id="shift_type"><%= shift_name %></td>
         <% end %>
-        <td class="right-align"><%= @nurse_shift_counts[nurse.id]["日勤"] %></td>
-        <td class="right-align"><%= @nurse_shift_counts[nurse.id]["準夜勤"] %></td>
-        <td class="right-align"><%= @nurse_shift_counts[nurse.id]["深夜勤"] %></td>
-        <td class="right-align"><%= ((@month >> 1) - @month).to_i - @nurse_shift_counts[nurse.id].values.sum %></td>
+        <td class="right-align bg-day"><%= @nurse_shift_counts[nurse.id]["日勤"] %></td>
+        <td class="right-align bg-sem"><%= @nurse_shift_counts[nurse.id]["準夜勤"] %></td>
+        <td class="right-align bg-ngt"><%= @nurse_shift_counts[nurse.id]["深夜勤"] %></td>
+        <td class="right-align bg-off"><%= ((@month >> 1) - @month).to_i - @nurse_shift_counts[nurse.id].values.sum %></td>
       </tr>
     <% end %>
   </table>
@@ -53,7 +53,6 @@
 <script>
 const shift_type_el = document.querySelectorAll("#shift_type");
 const shift_type_lists = ["日","準","深","休"];
-
 
 for(let i = 0; i < shift_type_el.length; i++){
   shift_type_el[i].addEventListener("contextmenu",function(){
@@ -68,5 +67,4 @@ for(let i = 0; i < shift_type_el.length; i++){
     }
   });
 }
-
 </script>

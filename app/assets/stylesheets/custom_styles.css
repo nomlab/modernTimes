@@ -20,3 +20,35 @@ table{
 .right-align{
     text-align: right;
 }
+
+.day{
+  color: red;
+}
+
+.sem{
+  color: green;
+}
+
+.ngt{
+  color: blue;
+}
+
+.off{
+  color: black;
+}
+
+.bg-day{
+  background: lightpink;
+}
+
+.bg-sem{
+  background: greenyellow;
+}
+
+.bg-ngt{
+  background: lightblue;
+}
+
+.bg-off{
+  background: whitesmoke;
+}
