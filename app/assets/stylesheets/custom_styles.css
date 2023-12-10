@@ -4,9 +4,18 @@ body{
 
 
 table{
-  border-collapse: collapse;
+  border-collapse: separate;
   width: 80%;
   margin: auto;
+  border-color: black;
+}
+
+caption {
+  font-weight: bold;
+  text-align: center;
+  color: black;
+  padding: 0.5em;
+  caption-side: top;
 }
 
 .left-align{
@@ -38,17 +47,25 @@ table{
 }
 
 .bg-day{
-  background: lightpink;
+  background: white;
 }
 
 .bg-sem{
-  background: greenyellow;
+  background: lightblue;
 }
 
 .bg-ngt{
-  background: lightblue;
+  background: lightpink;
+}
+
+.bg-semngt{
+  background: greenyellow;
 }
 
 .bg-off{
   background: whitesmoke;
+}
+
+.bg-holidays{
+  background: pink;
 }

@@ -11,6 +11,7 @@
 <div id="assignments" data-turbo-frame="assignments">
   <% @assignments_by_nurse = @assignments.group_by(&:rails_nurse_id) %>
   <% assignment_table = {} %>
+  <% week = ["日","月","火","水","木","金","土"] %>
   <% @assignments.each do |assignment| %>
     <% date = assignment.date %>
     <% nurse = assignment.rails_nurse %>
@@ -22,49 +23,62 @@
     <% assignment_table[nurse.id][date] = name_abbrev %>
   <% end %>
 
-  <table border="1" oncontextmenu="return false;" class="bg-off">
-    <th>
+  <table border="1" oncontextmenu="return false;">
+    <caption>
+      <%= @month.strftime("%Y") %>年度<%= @month.strftime("%m") %>月勤務表
+    </caption>
+    <tr>
+      <th></th>
       <% (@month...(@month >> 1)).each do |date| %>
-        <td class="right-align"><%= date.strftime("%d") %></td>
+        <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
+          <th class="right-align bg-holidays"><%= date.strftime("%d") %></th>
+        <% else %>
+          <th class="right-align"><%= date.strftime("%d") %></th>
+        <% end %>
       <% end %>
-      <td class="right-align day bg-day"><%= "日" %></td>
-      <td class="right-align sem bg-sem"><%= "準" %></td>
-      <td class="right-align ngt bg-ngt"><%= "深" %></td>
-      <td class="right-align off bg-off"><%= "休" %></td>
-    </th>
+      <th class="right-align bg-sem"><%= "準" %></th>
+      <th class="right-align bg-ngt"><%= "深" %></th>
+      <th class="right-align bg-semngt"><%= "夜" %></th>
+      <th class="right-align bg-day"><%= "日" %></th>
+      <th class="right-align bg-off"><%= "休" %></th>
+    </tr>
+    <tr>
+      <td></td>
+      <% (@month...(@month >> 1)).each do |date| %>
+        <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
+          <td class="right-align bg-holidays"><%= week[date.wday] %></td>
+        <% else %>
+          <td class="right-align"><%= week[date.wday] %></td>
+        <% end %>
+      <% end %>
+      <td class="right-align bg-sem"></td>
+      <td class="right-align bg-ngt"></td>
+      <td class="right-align bg-semngt"></td>
+      <td class="right-align bg-day"></td>
+      <td class="right-align bg-off"></td>
+    </tr>
+
     <% RailsNurse.all.each do |nurse| %>
       <tr>
-        <th class="left-align"><%= link_to_if nurse.name, nurse.name, nurse %></th>
+        <td class="left-align"><%= link_to_if nurse.name, nurse.name, nurse %></th>
         <% nurse_assignments = @assignments_by_nurse[nurse.id] || [] %>
+        <% shift_classes = { "日" => "day", "準" => "sem", "深" => "ngt" } %>
         <% (@month...(@month >> 1)).each do |date| %>
           <% assignment = nurse_assignments.find { |a| a.date == date } %>
           <% shift_name = assignment&.shift_type&.name&.first || "休" %>
-          <td class="right-align" id="shift_type"><%= shift_name %></td>
+          <% shift_class = shift_classes[shift_name] || "off" %>
+          <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
+            <td class="right-align <%= shift_class %> bg-holidays" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+          <% else %>
+            <td class="right-align <%= shift_class %>" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+          <% end %>
         <% end %>
-        <td class="right-align bg-day"><%= @nurse_shift_counts[nurse.id]["日勤"] %></td>
         <td class="right-align bg-sem"><%= @nurse_shift_counts[nurse.id]["準夜勤"] %></td>
         <td class="right-align bg-ngt"><%= @nurse_shift_counts[nurse.id]["深夜勤"] %></td>
+        <td class="right-align bg-semngt"><%= @nurse_shift_counts[nurse.id]["準夜勤"] + @nurse_shift_counts[nurse.id]["深夜勤"] %></td>
+        <td class="right-align bg-day"><%= @nurse_shift_counts[nurse.id]["日勤"] %></td>
         <td class="right-align bg-off"><%= ((@month >> 1) - @month).to_i - @nurse_shift_counts[nurse.id].values.sum %></td>
       </tr>
     <% end %>
   </table>
 </div>
-
-<script>
-const shift_type_el = document.querySelectorAll("#shift_type");
-const shift_type_lists = ["日","準","深","休"];
-
-for(let i = 0; i < shift_type_el.length; i++){
-  shift_type_el[i].addEventListener("contextmenu",function(){
-    for(let j = 0; j < shift_type_lists.length; j++){
-      if(shift_type_el[i].textContent == shift_type_lists[j]){
-        const next_shift_type = shift_type_lists[(j+1)%shift_type_lists.length];
-        console.log(next_shift_type);
-        shift_type_el[i].textContent = next_shift_type;
-        
-        break;
-      }
-    }
-  });
-}
-</script>
