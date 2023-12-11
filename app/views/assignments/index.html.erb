@@ -12,6 +12,8 @@
   <% @assignments_by_nurse = @assignments.group_by(&:rails_nurse_id) %>
   <% assignment_table = {} %>
   <% week = ["日","月","火","水","木","金","土"] %>
+  <% shifts = {"日勤" => "bg-day", "準夜" => "bg-sem", "深夜"=> "bg-ngt"} %>
+  <% shift_classes = {"日" => "day", "準" => "sem", "深" => "ngt"} %>
   <% @assignments.each do |assignment| %>
     <% date = assignment.date %>
     <% nurse = assignment.rails_nurse %>
@@ -60,9 +62,8 @@
 
     <% RailsNurse.all.each do |nurse| %>
       <tr>
-        <td class="left-align"><%= link_to_if nurse.name, nurse.name, nurse %></th>
+        <td class="left-align"><%= link_to_if nurse.name, nurse.name, nurse %></td>
         <% nurse_assignments = @assignments_by_nurse[nurse.id] || [] %>
-        <% shift_classes = { "日" => "day", "準" => "sem", "深" => "ngt" } %>
         <% (@month...(@month >> 1)).each do |date| %>
           <% assignment = nurse_assignments.find { |a| a.date == date } %>
           <% shift_name = assignment&.shift_type&.name&.first || "休" %>
@@ -78,6 +79,14 @@
         <td class="right-align bg-semngt"><%= @nurse_shift_counts[nurse.id]["準夜勤"] + @nurse_shift_counts[nurse.id]["深夜勤"] %></td>
         <td class="right-align bg-day"><%= @nurse_shift_counts[nurse.id]["日勤"] %></td>
         <td class="right-align bg-off"><%= ((@month >> 1) - @month).to_i - @nurse_shift_counts[nurse.id].values.sum %></td>
+      </tr>
+    <% end %>
+    <% shifts.each do |shift| %>
+      <tr>
+        <td class="left-align <%= shifts[shift.first] %>">総<%= shift.first %>合計</td>
+        <% (@month...(@month >> 1)).each do |date| %>
+          <td class="right-align <%= shifts[shift.first] %>"><%= "TODO" %></td>
+        <% end %>
       </tr>
     <% end %>
   </table>
