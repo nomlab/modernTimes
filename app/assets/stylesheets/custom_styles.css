@@ -4,10 +4,12 @@ body{
 
 
 table{
-  border-collapse: separate;
   width: 80%;
   margin: auto;
-  border-color: black;
+}
+
+table, th, td{
+  border: 1px solid black;
 }
 
 caption {
@@ -31,15 +33,15 @@ caption {
 }
 
 .day{
-  color: red;
+  color: black;
 }
 
 .sem{
-  color: green;
+  color: blue;
 }
 
 .ngt{
-  color: blue;
+  color: red;
 }
 
 .off{
@@ -68,4 +70,16 @@ caption {
 
 .bg-holidays{
   background: pink;
+}
+
+.top{
+  border-bottom: 0.1rem solid;
+}
+
+.bottom{
+  border-bottom: 0.1rem solid;
+}
+
+.right{
+  border-right: 0.1rem solid;
 }
