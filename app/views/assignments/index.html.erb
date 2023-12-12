@@ -8,11 +8,26 @@
 <%= link_to "←", assignments_path(month: (@month <<1).strftime("%Y%m")) %>
 <%= link_to "→", assignments_path(month: (@month >>1).strftime("%Y%m")) %>
 
+<table border="1">
+  <% (-1..1).each do |year| %>
+    <tr>
+      <th><%= (Date.today.strftime("%Y").to_i + year).to_s %>年</th>
+      <% (1..12).each do |month| %>
+        <% month = month.to_s %>
+        <% if month.length == 1 %>
+          <% month = "0" + month %>
+        <% end %>
+        <td><%= link_to month + "月", assignments_path(month: ((Date.today.strftime("%Y").to_i + year).to_s + month)) %><td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>
+
 <div id="assignments" data-turbo-frame="assignments">
   <% @assignments_by_nurse = @assignments.group_by(&:rails_nurse_id) %>
   <% assignment_table = {} %>
   <% week = ["日","月","火","水","木","金","土"] %>
-  <% shifts = {"日勤" => "bg-day", "準夜" => "bg-sem", "深夜"=> "bg-ngt"} %>
+  <% shifts = {"日勤" => "bg-day", "準夜勤" => "bg-sem", "深夜勤"=> "bg-ngt"} %>
   <% shift_classes = {"日" => "day", "準" => "sem", "深" => "ngt"} %>
   <% @assignments.each do |assignment| %>
     <% date = assignment.date %>
@@ -85,7 +100,7 @@
       <tr>
         <td class="left-align <%= shifts[shift.first] %>">総<%= shift.first %>合計</td>
         <% (@month...(@month >> 1)).each do |date| %>
-          <td class="right-align <%= shifts[shift.first] %>"><%= "TODO" %></td>
+          <td class="right-align <%= shifts[shift.first] %>"><%= @daily_shift_counts[date][shift.first] %></td>
         <% end %>
       </tr>
     <% end %>

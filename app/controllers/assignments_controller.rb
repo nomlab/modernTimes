@@ -18,6 +18,7 @@ class AssignmentsController < ApplicationController
     @assignments = Assignment.where(date: @month...(@month >> 1))
     @shift_types = ShiftType.all
     @nurse_shift_counts = count_shifts_by_nurse
+    @daily_shift_counts = count_shifts_by_day
 
     @total = @shift_types.sum { |shift_type| @nurse_shift_counts.values.sum { |counts| counts[shift_type.name] || 0 } }
   end
@@ -158,5 +159,18 @@ class AssignmentsController < ApplicationController
         nurse_shift_counts[nurse.id] = shift_counts
       end
       nurse_shift_counts
+    end
+
+    def count_shifts_by_day
+      daily_shift_counts = {}
+      (@month...(@month >> 1)).each do |day|
+        daily_shifts = @assignments.where(date: day)
+        shift_counts = {}
+        @shift_types.each do |shift_type|
+          shift_counts[shift_type.name] = daily_shifts.where(shift_type_id: shift_type.id).count
+        end
+        daily_shift_counts[day] = shift_counts
+      end
+      daily_shift_counts
     end
 end
