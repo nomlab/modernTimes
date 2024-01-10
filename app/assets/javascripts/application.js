@@ -1,7 +1,7 @@
 //= require_tree .
 //= require popper
 //= require bootstrap
-//= require blockly/dist/blockly_compressed
-//= require blockly/dist/blocks_compressed
-//= require blockly/dist/javascript_compressed
-//= require blockly/msg/messages
+//= require blockly/blockly_compressed
+//= require blockly/blocks_compressed
+//= require blockly/javascript_compressed
+//= require blockly/msg/ja.js
