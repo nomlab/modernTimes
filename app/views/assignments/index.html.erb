@@ -100,7 +100,7 @@
         <% if month.length == 1 %>
           <% month = "0" + month %>
         <% end %>
-        <td><%= link_to month + "月", assignments_path(month: ((Date.today.strftime("%Y").to_i + year).to_s + month)) %><td>
+        <td><%= link_to month + "月", assignments_path(month: ((Date.today.strftime("%Y").to_i + year).to_s + month)) %></td>
       <% end %>
     </tr>
   <% end %>

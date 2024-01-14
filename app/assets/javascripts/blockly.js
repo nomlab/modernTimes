@@ -1,16 +1,22 @@
-function showCode() {
-  Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
-  var code = Blockly.JavaScript.workspaceToCode(workspace);
-  alert(code);
-}
-function runCode() {
-  window.LoopTrap = 1000;
-  Blockly.JavaScript.INFINITE_LOOP_TRAP = 
-      'if (--window.LoopTrap === 0) throw "Infinite loop.";\n';
-  var code = Blockly.JavaScript.workspaceToCode(workspace);
-  try {
-    eval(code);
-  } catch (e) {
-    alert(e);
+/* eslint-disable */
+;(function(root, factory) {
+  if (typeof define === 'function' && define.amd) { // AMD
+    define(['./blockly_compressed'], factory);
+  } else if (typeof exports === 'object') { // Node.js
+    module.exports = factory(require('./blockly_compressed'));
+  } else { // Browser
+    root.Blockly = factory(root.Blockly);
   }
-}
+}(this, function(Blockly) {
+/**
+ * @license
+ * Copyright 2020 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * @fileoverview Blockly module; just a wrapper for blockly_compressed.js.
+ */
+
+return Blockly;
+}));

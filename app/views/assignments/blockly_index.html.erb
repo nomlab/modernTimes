@@ -1,13 +1,16 @@
 <h1>Blockly</h1>
 
 <p>
-  <button onclick="showCode()">Show JavaScript</button>
-  <button onclick="runCode()">Run JavaScript</button>
+  <button onclick="showJSCode()">Show JavaScript</button>
+  <button onclick="runJSCode()">Run JavaScript</button>
+  <button onclick="showAUKCode()">Show AUK</button>
+  <button onclick="runAUKCode()">Run AUK</button>
 </p>
 
 <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
 <xml id="toolbox" style="display: none">
   <category name="資源" colour="210">
+  <block type="math_sum"></block>
   </category>
   <category name="制約" colour="150">
   </category>
@@ -47,9 +50,15 @@
 <block type="text_print"></block>
 </category>
 
-<script>
+<script type="module">
+import Blockly from "../../assets/javascripts/blockly_compressed";
+import "../../assets/blockly.js";
+import "../../assets/blocks_compressed.js";
+import "../../assets/javascript_compressed.js";
+import "../../assets/blocks.js";
+
 var workspace = Blockly.inject('blocklyDiv', {
-  toolbox: document.getElementById('toolbox'), 
+  toolbox: document.getElementById('toolbox'),
   grid: {
     spacing: 20,
     length: 3,
