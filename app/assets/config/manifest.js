@@ -2,3 +2,4 @@
 //= link_directory ../stylesheets .css
 //= link application.js
 //= link act.js
+//= link blockly.js
