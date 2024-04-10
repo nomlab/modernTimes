@@ -14,7 +14,7 @@ bundle exec rails db:migrate RAILS_ENV=development
 # ER diagram
 <!-- 理想
 ```mermaid
- %%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','primaryTextColor':'ffffff','primaryBorderColor':'#000000','secondaryColor':'#000000','lineColor':'#000000','noteTextColor':'#000000','noteBkgColor':'#000000','textColor':'#000000','fontSize':'20px','fontFamily':''},'themeCSS':"text.actor {font-size:24px !important;}"}}%%
+ %%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','primaryTextColor':'#ffffff','primaryBorderColor':'#000000','secondaryColor':'#000000','lineColor':'#000000','noteTextColor':'#000000','noteBkgColor':'#000000','textColor':'#000000','fontSize':'20px','fontFamily':''},'themeCSS':"text.actor {font-size:24px !important;}"}}%%
  erDiagram
    nurses }|--|| teams : "多対1"
    nurses }|--|| ladder_levels : "多対1"
@@ -59,7 +59,7 @@ bundle exec rails db:migrate RAILS_ENV=development
 -->
 
 ```mermaid
- %%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','primaryTextColor':'ffffff','primaryBorderColor':'#000000','secondaryColor':'#000000','lineColor':'#000000','noteTextColor':'#000000','noteBkgColor':'#000000','textColor':'#000000','fontSize':'20px','fontFamily':''},'themeCSS':"text.actor {font-size:24px !important;}"}}%%
+%%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','primaryTextColor':'#ffffff','primaryBorderColor':'#000000','secondaryColor':'#000000','lineColor':'#000000','noteTextColor':'#000000','noteBkgColor':'#000000','textColor':'#000000','fontSize':'20px','fontFamily':''},'themeCSS':"text.actor {font-size:24px !important;}"}}%%
  erDiagram
    nurses }|--|| teams : "多対1"
    nurses ||--|{ assignments : "1対多"
