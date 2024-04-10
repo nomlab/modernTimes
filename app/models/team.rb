@@ -6,6 +6,6 @@ class Team < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["nurses"]
+    ["rails_nurses"]
   end
 end

@@ -1,9 +1,51 @@
-<h1>New assignment</h1>
+<% if flash[:color] == "red" %>
+  <div class="red-text"><%= flash[:notice] %></div>
+<% elsif flash[:color] == "green" %>
+  <div class="green-text"><%= flash[:notice] %></div>
+<% else %>
+  <div><%= flash[:notice] %></div>
+<% end %>
 
-<%= render "form", assignment: @assignment %>
-
-<br>
-
-<div>
-  <%= link_to "Back to assignments", assignments_path %>
+<div class="row">
+  <div class="col-lg-4 col-md-12"><h2><%= "#{@month.strftime("%Y年%m月")}のシフトを作成" %></h2></div>
+  <div class="col-lg-6 col-md-0"></div>
+  <div class="col-lg-2 col-md-12"><%= link_to "#{@month.strftime("%Y")}年#{@month.strftime("%m")}月のシフトへ戻る", assignments_path(month: @month.strftime("%Y%m")), class: "btn btn-outline-primary" %></div>
 </div>
+
+<%= form_tag assignments_path(month: @month.strftime("%Y%m")), method: :post do %>
+<div class="row mb-3">
+  <div class="col-lg-1 col-md-0"></div>
+  <div class="col-lg-10 col-md-12">
+    <div class="card">
+      <div class="card-header">
+          <div class="row">
+            <div class="col-3 d-flex align-items-center">看護師のシフト登録</div>
+            <div class="col-6"></div>
+            <div class="col-3"><%= submit_tag "選択した看護師をシフトに追加", class: "ms-5 btn btn-success px-3" %></div>
+          </div>
+      </div>
+      <div class="card-body m-3">
+        <div class="row border-bottom border-dark pb-3">
+          <div class="col my-auto fw-bolder h5">看護師選択</div>
+          <div class="col my-auto fw-bolder h5">看護師名</div>
+          <div class="col my-auto fw-bolder h5">ラダーレベル</div>
+          <div class="col my-auto fw-bolder h5">チーム</div>
+        </div>
+      <div>
+        <% @nurses.each do |nurse| %>
+          <div class="row border-bottom px-3 py-2">
+            <% if Assignment.where(date: @desired_date_range, rails_nurse_id: nurse.id).count >= 1 %>
+              <div class="col my-auto"><%= "勤務表に登録済み" %></div>
+            <% else %>
+              <div class="col my-auto"><%= check_box_tag "nurse_ids[]", nurse.id %></div>
+            <% end %>
+            <div class="col my-auto"><%= nurse.name %></div>
+            <div class="col my-auto"><%= nurse.ladder_level %></div>
+            <div class="col my-auto"><%= nurse.team.name %></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<% end %>

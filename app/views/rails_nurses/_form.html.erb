@@ -1,5 +1,5 @@
-<%= form_with(model: nurse) do |form| %>
-  <% if nurse.errors.any? %>
+<%= form_with(model: rails_nurse) do |form| %>
+  <% if rails_nurse.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(nurse.errors.count, "error") %> prohibited this nurse from being saved:</h2>
 

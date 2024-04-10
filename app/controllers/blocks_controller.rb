@@ -11,4 +11,3 @@ class BlocksController < ApplicationController
     render json: { result: 'success' }
   end
 end
-  

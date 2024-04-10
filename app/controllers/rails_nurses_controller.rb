@@ -5,11 +5,11 @@ class RailsNursesController < ApplicationController
   def index
     @q = RailsNurse.ransack(params[:q])
     @nurses = @q.result(distinct: true)
-  
+
     if @nurses.blank?
       @nurses = RailsNurse.all
     end
-  end 
+  end
 
   # GET /nurses/1 or /nurses/1.json
   def show
@@ -36,7 +36,7 @@ class RailsNursesController < ApplicationController
   # GET /nurses/new
   def new
     @nurse = RailsNurse.new
-    @teams = Team.distinct.joins(:rails_nurses).select(:id, :name)
+    @teams = Team.distinct
   end
 
   # GET /nurses/1/edit

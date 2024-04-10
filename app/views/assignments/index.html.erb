@@ -3,26 +3,30 @@
 <div class="row">
   <div class="col-lg-4 col-md-12"><h2>シフト (<%= @month.strftime("%Y-%m") %>)</h2></div>
   <div class="col-lg-6 col-md-0"></div>
-
+  <div class="col-lg-2 col-md-12"><%= link_to "#{@month.strftime("%Y")}年#{@month.strftime("%m")}月の勤務表作成", create_assignment_path(month: (@month).strftime("%Y%m")), class: "btn btn-outline-primary" %></div>
 </div>
 <%= link_to "←", assignments_path(month: (@month <<1).strftime("%Y%m")) %>
 <%= link_to "→", assignments_path(month: (@month >>1).strftime("%Y%m")) %>
 
 <div id="assignments" data-turbo-frame="assignments">
-  <% @assignments_by_nurse = @assignments.group_by(&:rails_nurse_id) %>
   <% assignment_table = {} %>
   <% week = ["日","月","火","水","木","金","土"] %>
-  <% shifts = {"日勤" => "bg-day", "準夜勤" => "bg-sem", "深夜勤"=> "bg-ngt"} %>
-  <% shift_classes = {"日" => "day", "準" => "sem", "深" => "ngt"} %>
+  <% shifts = {@shift_names.first => "bg-day", @shift_names.second => "bg-sem", @shift_names.third => "bg-ngt"} %>
+  <% shift_classes = {"日" => @shift_names.first.first, @shift_names.second.first => "sem", @shift_names.third.first => "ngt"} %>
   <% @assignments.each do |assignment| %>
     <% date = assignment.date %>
     <% nurse = assignment.rails_nurse %>
-    <% name = assignment.shift_type.name %>
-    <% name_abbrev = name[0] %>
-    <% unless assignment_table[nurse.id] %>
-      <% assignment_table[nurse.id] = {} %>
+    <% if assignment.shift_type.nil? %>
+      <% unless assignment_table[nurse.id] %>
+        <% assignment_table[nurse.id] = {} %>
+      <% end %>
+        <% assignment_table[nurse.id][date] = {} %>
+    <% else %>
+      <% unless assignment_table[nurse.id] %>
+        <% assignment_table[nurse.id] = {} %>
+      <% end %>
+      <% assignment_table[nurse.id][date] = assignment.shift_type.name.first %>
     <% end %>
-    <% assignment_table[nurse.id][date] = name_abbrev %>
   <% end %>
 
   <table oncontextmenu="return false;">
@@ -33,53 +37,59 @@
       <th class="right"></th>
       <% (@month...(@month >> 1)).each do |date| %>
         <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
-          <th class="right-align bg-holidays"><%= date.strftime("%d") %></th>
+          <th class="center-align bg-holidays"><%= date.strftime("%d") %></th>
         <% else %>
-          <th class="right-align"><%= date.strftime("%d") %></th>
+          <th class="center-align"><%= date.strftime("%d") %></th>
         <% end %>
       <% end %>
-      <th class="right-align bg-sem"><%= "準" %></th>
-      <th class="right-align bg-ngt"><%= "深" %></th>
-      <th class="right-align bg-semngt"><%= "夜" %></th>
-      <th class="right-align bg-day"><%= "日" %></th>
-      <th class="right-align bg-off"><%= "休" %></th>
+      <th class="center-align bg-sem"><%= @shift_names.second.first %></th>
+      <th class="center-align bg-ngt"><%= @shift_names.third.first %></th>
+      <th class="center-align bg-semngt"><%= "夜" %></th>
+      <th class="center-align bg-day"><%= @shift_names.first.first %></th>
+      <th class="center-align bg-off"><%= @shift_names.fourth.first %></th>
+      <th class="center-align"><%= "未" %></th>
     </tr>
     <tr>
       <td class="right bottom"></td>
       <% (@month...(@month >> 1)).each do |date| %>
         <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
-          <td class="right-align bg-holidays bottom"><%= week[date.wday] %></td>
+          <td class="center-align bg-holidays bottom"><%= week[date.wday] %></td>
         <% else %>
-          <td class="right-align bottom"><%= week[date.wday] %></td>
+          <td class="center-align bottom"><%= week[date.wday] %></td>
         <% end %>
       <% end %>
-      <td class="right-align bg-sem bottom"></td>
-      <td class="right-align bg-ngt bottom"></td>
-      <td class="right-align bg-semngt bottom"></td>
-      <td class="right-align bg-day bottom"></td>
-      <td class="right-align bg-off bottom"></td>
+      <td class="center-align bg-sem bottom"></td>
+      <td class="center-align bg-ngt bottom"></td>
+      <td class="center-align bg-semngt bottom"></td>
+      <td class="center-align bg-day bottom"></td>
+      <td class="center-align bg-off bottom"></td>
+      <td class="center-align bottom"></td>
     </tr>
 
-    <% RailsNurse.all.each do |nurse| %>
-      <tr>
-        <td class="left-align right" width="10%"><%= link_to_if nurse.name, nurse.name, nurse %></td>
-        <% nurse_assignments = @assignments_by_nurse[nurse.id] || [] %>
-        <% (@month...(@month >> 1)).each do |date| %>
-          <% assignment = nurse_assignments.find { |a| a.date == date } %>
-          <% shift_name = assignment&.shift_type&.name&.first || "休" %>
-          <% shift_class = shift_classes[shift_name] || "off" %>
-          <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
-            <td class="right-align <%= shift_class %> bg-holidays" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
-          <% else %>
-            <td class="right-align <%= shift_class %>" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+    <% @nurses.each do |nurse| %>
+      <% nurse_assignments = nurse.assignments || [] %>
+      <% next if nurse_assignments.blank? %>
+      <% if nurse_assignments.any?{|a| @date_range.cover?(a.date)} %>
+        <tr>
+          <td class="left-align right" width="10%"><%= link_to_if nurse.name, nurse.name, nurse %></td>
+          <% (@month...(@month >> 1)).each do |date| %>
+            <% assignment = nurse_assignments.find { |a| a.date == date } %>
+            <% shift_name = assignment&.shift_type&.name&.first %>
+            <% shift_class = shift_classes[shift_name] %>
+            <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
+              <td class="center-align <%= shift_class %> bg-holidays" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+            <% else %>
+              <td class="center-align <%= shift_class %>" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+            <% end %>
           <% end %>
-        <% end %>
-        <td class="right-align bg-sem"><%= @nurse_shift_counts[nurse.id]["準夜勤"] %></td>
-        <td class="right-align bg-ngt"><%= @nurse_shift_counts[nurse.id]["深夜勤"] %></td>
-        <td class="right-align bg-semngt"><%= @nurse_shift_counts[nurse.id]["準夜勤"] + @nurse_shift_counts[nurse.id]["深夜勤"] %></td>
-        <td class="right-align bg-day"><%= @nurse_shift_counts[nurse.id]["日勤"] %></td>
-        <td class="right-align bg-off"><%= ((@month >> 1) - @month).to_i - @nurse_shift_counts[nurse.id].values.sum %></td>
-      </tr>
+          <td class="right-align bg-sem"><%= @nurse_shift_counts[nurse.id][@shift_names.second] %></td>
+          <td class="right-align bg-ngt"><%= @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
+          <td class="right-align bg-semngt"><%= @nurse_shift_counts[nurse.id][@shift_names.second] + @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
+          <td class="right-align bg-day"><%= @nurse_shift_counts[nurse.id][@shift_names.first] %></td>
+          <td class="right-align bg-off"><%= @nurse_shift_counts[nurse.id][@shift_names.fourth] %></td>
+          <td class="right-align"><%= ((@month >> 1) - @month).to_i - @nurse_shift_counts[nurse.id].values.sum %></td>
+        </tr>
+      <% end %>
     <% end %>
     <% shifts.each do |shift| %>
       <tr>
@@ -92,18 +102,17 @@
   </table>
 
   <table border="1">
-  <% (-1..1).each do |year| %>
-    <tr>
-      <th><%= (Date.today.strftime("%Y").to_i + year).to_s %>年</th>
-      <% (1..12).each do |month| %>
-        <% month = month.to_s %>
-        <% if month.length == 1 %>
-          <% month = "0" + month %>
+    <% (-1..1).each do |year| %>
+      <tr>
+        <th><%= (Date.today.strftime("%Y").to_i + year).to_s %>年</th>
+        <% (1..12).each do |month| %>
+          <% month = month.to_s %>
+          <% if month.length == 1 %>
+            <% month = "0" + month %>
+          <% end %>
+          <td><%= link_to month + "月", assignments_path(month: ((Date.today.strftime("%Y").to_i + year).to_s + month)) %></td>
         <% end %>
-        <td><%= link_to month + "月", assignments_path(month: ((Date.today.strftime("%Y").to_i + year).to_s + month)) %></td>
-      <% end %>
-    </tr>
-  <% end %>
-</table>
-
-  </div>
+      </tr>
+    <% end %>
+  </table>
+</div>

@@ -15,11 +15,17 @@ class AssignmentsController < ApplicationController
     else
       @month = Date.new(today.year, today.month, 1)
     end
-    @assignments = Assignment.where(date: @month...(@month >> 1))
+    @assignments = Assignment.includes(:shift_type).where(date: @month...(@month >> 1))
+    @nurses = RailsNurse.includes(:assignments)
+
+    @shift_names = ShiftType.distinct.pluck(:name)
+    @shift_names += ["日勤", "準夜勤", "深夜勤", "休み"] if @shift_names.size < 4
+
     @shift_types = ShiftType.all
     @nurse_shift_counts = count_shifts_by_nurse
     @daily_shift_counts = count_shifts_by_day
 
+    @date_range = @month.to_date...(@month >> 1).to_date
     @total = @shift_types.sum { |shift_type| @nurse_shift_counts.values.sum { |counts| counts[shift_type.name] || 0 } }
   end
 
@@ -29,7 +35,19 @@ class AssignmentsController < ApplicationController
 
   # GET /assignments/new
   def new
-    @assignment = Assignment.new
+    #@assignment = Assignment.new
+    today = Date.today
+
+    yyyymm = params[:month].to_s
+    yyyy, mm = /(\d{4})(\d{2})/.match(yyyymm).to_a.values_at(1,2).map(&:to_i)
+
+    if Date.valid_date?(yyyy, mm, 1)
+      @month = Date.new(yyyy, mm, 1)
+    else
+      @month = Date.new(today.year, today.month, 1)
+    end
+    @nurses = RailsNurse.all
+    @desired_date_range = (@month.strftime('%Y%m') + "01").to_date.beginning_of_month..(@month.strftime('%Y%m') + "01").to_date.end_of_month
   end
 
   # GET /assignments/1/edit
@@ -38,16 +56,34 @@ class AssignmentsController < ApplicationController
 
   # POST /assignments or /assignments.json
   def create
-    @assignment = Assignment.new(assignment_params)
+    today = Date.today
 
-    respond_to do |format|
-      if @assignment.save
-        format.html { redirect_to assignment_url(@assignment), notice: "割当が作成されました" }
-        format.json { render :show, status: :created, location: @assignment }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @assignment.errors, status: :unprocessable_entity }
+    yyyymm = params[:month].to_s
+    yyyy, mm = /(\d{4})(\d{2})/.match(yyyymm).to_a.values_at(1,2).map(&:to_i)
+
+    if Date.valid_date?(yyyy, mm, 1)
+      @month = Date.new(yyyy, mm, 1)
+    else
+      @month = Date.new(today.year, today.month, 1)
+    end
+
+    @desired_date_range = (@month.strftime('%Y%m') + "01").to_date.beginning_of_month..(@month.strftime('%Y%m') + "01").to_date.end_of_month
+
+    if params[:nurse_ids].nil?
+      redirect_to new_assignment_path(month: @month.strftime("%Y%m")), notice: "シフトに追加したい看護師を選択してください", flash: {color: :red}
+    else
+      @nurses = RailsNurse.where(id: params[:nurse_ids])
+      @nurses.each do |nurse|
+        @desired_date_range.each do |date|
+          existing_assignment = Assignment.find_by(date: date, rails_nurse_id: nurse.id)
+          if existing_assignment.nil?
+            # データが存在しない場合は保存
+            @assignment = Assignment.new(date: date, rails_nurse_id: nurse.id)
+            @assignment.save
+          end
+        end
       end
+      redirect_to assignments_path(month: @month.strftime("%Y%m")), notice: "シフトに看護師が追加されました．", flash: {color: :green}
     end
   end
 
@@ -93,12 +129,11 @@ class AssignmentsController < ApplicationController
     end
 
     file = params[:file]
-    p "AAAAAA" if file 
-    p "CCCCCCCCCCCCCCCCCCCCCC"
+
     # AUK Parser
     parser = AUKParser.new
     parser.parse File.read(file) if file
-  
+
     ast = parser.ast
     # SAT Encoder
     ptable = PropTable.new(ast)
@@ -122,15 +157,11 @@ class AssignmentsController < ApplicationController
       puts "UNSAT"
       exit
     end
-    
-    case option[:format]
-      when "auk" then puts ast.to_auk
-      when "html" then puts ast.to_html
-      # when "csv" then puts ast.to_csv
-    end
-
-    @html = ast.to_html
-    redirect_to solve_path(result: @html)
+    #shift_jsonの形式 {"name"=>"nurse 5", "date"=>"2024-03-01", "shifttype"=>"日勤"}
+    shift_json = ast.to_json
+    create_assignments(shift_json)
+#    @html = ast.to_html
+#"    redirect_to solve_path(result: @html)
   end
 
   private
@@ -150,13 +181,12 @@ class AssignmentsController < ApplicationController
 
     def count_shifts_by_nurse
       nurse_shift_counts = {}
-      RailsNurse.all.each do |nurse|
-        nurse_assignments = @assignments.where(rails_nurse_id: nurse.id)
+      @assignments.group_by(&:rails_nurse_id).each do |nurse_id, nurse_assignments|
         shift_counts = {}
         @shift_types.each do |shift_type|
-          shift_counts[shift_type.name] = nurse_assignments.where(shift_type_id: shift_type.id).count
+          shift_counts[shift_type.name] = nurse_assignments.count { |a| a.shift_type_id == shift_type.id }
         end
-        nurse_shift_counts[nurse.id] = shift_counts
+        nurse_shift_counts[nurse_id] = shift_counts
       end
       nurse_shift_counts
     end
@@ -172,5 +202,31 @@ class AssignmentsController < ApplicationController
         daily_shift_counts[day] = shift_counts
       end
       daily_shift_counts
+    end
+
+    def create_assignments(json)
+      shift_hash = JSON.parse(json)["shifts"]
+      shift_hash.each do |shift|
+        nurse = RailsNurse.find_by(name: shift["name"])
+        date = shift["date"]
+        shift = ShiftType.find_by(name: shift["shift_type"])
+        if Assignment.where(date: date, rails_nurse_id: nurse.id).exists?
+          Assignment.where(date: date, rails_nurse_id: nurse.id).update(shift_type_id: shift.id)
+        else
+          Assignment.create(date: date, rails_nurse_id: nurse.id, shift_type_id: shift.id)
+        end
+      end
+      off_shift = ShiftType.find_by(name: "休み")
+      # 割当のないものを休みに
+      date_range = JSON.parse(json)["date_range"]
+      range = (Date.parse(date_range["start"])..Date.parse(date_range["end"]))
+      range.each do |date|
+        assignments = Assignment.where(date: date)
+        assignments.each do |assignment|
+          if assignment.shift_type_id.nil?
+            Assignment.where(date: date, rails_nurse_id: assignment.rails_nurse.id).update(shift_type_id: off_shift.id)
+          end
+        end
+      end
     end
 end
