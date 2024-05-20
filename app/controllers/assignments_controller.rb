@@ -27,6 +27,9 @@ class AssignmentsController < ApplicationController
 
     @date_range = @month.to_date...(@month >> 1).to_date
     @total = @shift_types.sum { |shift_type| @nurse_shift_counts.values.sum { |counts| counts[shift_type.name] || 0 } }
+
+    shifts = Assignment.shifts_to_json(@date_range)
+    json = to_json(shifts)
   end
 
   # GET /assignments/1 or /assignments/1.json
@@ -164,6 +167,11 @@ class AssignmentsController < ApplicationController
 #"    redirect_to solve_path(result: @html)
   end
 
+  def download
+    file_path = Rails.root.join("public", "AUK", "example.auk")
+    send_file(file_path, filename: "generated_file.auk", type: "text/plain")
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_assignment
@@ -228,5 +236,16 @@ class AssignmentsController < ApplicationController
           end
         end
       end
+    end
+
+    def to_json(shifts)
+      json = {
+        "shifts" => shifts,
+        "date_range" => {
+          start: @month.to_date.strftime("%Y%m%d"),
+          end: @month.to_date.end_of_month.strftime("%Y%m%d")
+        }
+      }
+      JSON.generate(json)
     end
 end
