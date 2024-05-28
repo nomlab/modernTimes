@@ -18,7 +18,7 @@ AUK とは，ナーススケジューリング問題を記述可能な DSL(Domai
 Swallow は SAT ソルバを用いた求解を行っている．
 
 # Requirements
-+ Ruby 3.x
++ Ruby 3.1.2
 + ruby on rails 7~
 
 # Setup
