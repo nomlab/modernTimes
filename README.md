@@ -72,8 +72,7 @@ After launching, open http://localhost:54321 in your browser to open the modernT
    ```
 5. Create a dummy data
    ```
-   # $ Insert dummy data:
-   # $ bin/rails runner scripts/create_dummy_data.rb
+   $ bin/rails runner scripts/create_dummy_data.rb
    ```
 6. Launch
    ```bash

@@ -68,8 +68,7 @@ $ ./bin/server.sh start production
    ```
 4. ダミーデータの登録
    ```
-   # $ Insert dummy data:
-   # $ bin/rails runner scripts/create_dummy_data.rb
+   $ bin/rails runner scripts/create_dummy_data.rb
    ```
 5. 起動
    ```bash
