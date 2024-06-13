@@ -4,7 +4,7 @@
   <div class="col-lg-4 col-md-12"><h2>シフト (<%= @month.strftime("%Y-%m") %>)</h2></div>
   <div class="col-lg-4 col-md-0"></div>
   <div class="col-lg-2 col-md-12"><%= link_to "#{@month.strftime("%Y")}年#{@month.strftime("%m")}月の勤務表作成", create_assignment_path(month: (@month).strftime("%Y%m")), class: "btn btn-outline-primary" %></div>
-  <div class="col-lg-2 col-md-12"><%= link_to "AUK ファイルをダウンロード", auk_download_path, class: 'btn btn-primary' %></div>
+  <div class="col-lg-2 col-md-12"><%= link_to "AUK ファイルをダウンロード", auk_download_path(month: (@month).strftime("%Y%m")), class: 'btn btn-primary' %></div>
 </div>
 <%= link_to "←", assignments_path(month: (@month <<1).strftime("%Y%m")) %>
 <%= link_to "→", assignments_path(month: (@month >>1).strftime("%Y%m")) %>

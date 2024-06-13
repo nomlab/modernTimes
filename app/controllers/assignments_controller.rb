@@ -27,9 +27,6 @@ class AssignmentsController < ApplicationController
 
     @date_range = @month.to_date...(@month >> 1).to_date
     @total = @shift_types.sum { |shift_type| @nurse_shift_counts.values.sum { |counts| counts[shift_type.name] || 0 } }
-
-    shifts = Assignment.shifts_to_json(@date_range)
-    json = to_json(shifts)
   end
 
   # GET /assignments/1 or /assignments/1.json
@@ -168,6 +165,21 @@ class AssignmentsController < ApplicationController
   end
 
   def download
+    today = Date.today
+
+    yyyymm = params[:month].to_s
+    yyyy, mm = /(\d{4})(\d{2})/.match(yyyymm).to_a.values_at(1,2).map(&:to_i)
+
+    if Date.valid_date?(yyyy, mm, 1)
+      @month = Date.new(yyyy, mm, 1)
+    else
+      @month = Date.new(today.year, today.month, 1)
+    end
+
+    shifts = Assignment.includes(:shift_type).where(date: @month...(@month >> 1))
+    json = to_json(shifts, @month)
+    auk = json_to_auk(json)
+    write_auk(auk)
     file_path = Rails.root.join("public", "AUK", "example.auk")
     send_file(file_path, filename: "generated_file.auk", type: "text/plain")
   end
@@ -238,14 +250,71 @@ class AssignmentsController < ApplicationController
       end
     end
 
-    def to_json(shifts)
+    def to_json(shifts, month)
       json = {
-        "shifts" => shifts,
+        "shifts" => shifts.map do |shift|
+          {
+            name: shift.rails_nurse.name,
+            date: shift.date,
+            shift_type: shift.shift_type.name
+          }
+        end,
         "date_range" => {
-          start: @month.to_date.strftime("%Y%m%d"),
-          end: @month.to_date.end_of_month.strftime("%Y%m%d")
+          start: month.to_date.strftime("%Y%m%d"),
+          end: month.to_date.end_of_month.strftime("%Y%m%d")
         }
       }
       JSON.generate(json)
+    end
+
+    def json_to_auk(json)
+      date_range = JSON.parse(json)["date_range"]
+      shift_hash = JSON.parse(json)["shifts"]
+
+      days = (Date.parse(date_range["start"])..Date.parse(date_range["end"])).map{|date| date.strftime('%Y%m%d')}
+      period = ["日勤", "準夜勤", "深夜勤"]
+      #nurse に割り当てられている時間枠の対応関係もってくる
+      nurses_assignments = []
+      shift_hash.each do |shift|
+        case shift["shift_type"]
+        when "日勤"
+          timeslot = Date.parse(shift["date"]).strftime("%Y%m%d") + "day"
+        when "準夜勤"
+          timeslot = Date.parse(shift["date"]).strftime("%Y%m%d") + "sem"
+        when "深夜勤"
+          timeslot = Date.parse(shift["date"]).strftime("%Y%m%d") + "ngt"
+        when "休み"
+          timeslot = Date.parse(shift["date"]).strftime("%Y%m%d") + "off"
+        else
+          timeslot = Date.parse(shift["date"]).strftime("%Y%m%d") + ""
+        end
+        nurses_assignments << [shift["name"], timeslot]
+      end
+
+      nurse_timeslots = Hash.new { |hash, key| hash[key] = [] }
+      nurses_assignments.each do |nurse, timeslot|
+        nurse_timeslots[nurse] << timeslot
+      end
+
+      auk = <<~END
+        timeslot do
+          days #{days.map {|day| "\"#{day}\"" }.join(", ")}
+          period #{period.map {|shift| "\"#{shift}\"" }.join(", ")}
+        end
+
+        #{nurse_timeslots.map do |nurse, timeslots|
+        "nurse \"#{nurse}\" do\n" +
+        "  timeslots \"#{timeslots.join('", "')}\n" +
+        "end"
+      end.join("\n")}
+      END
+
+    return auk
+    end
+
+    def write_auk(auk)
+      File.open("public/AUK/example.auk","w") do |text|
+        text.puts(auk)
+      end
     end
 end
