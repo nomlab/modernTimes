@@ -107,3 +107,5 @@ yarn-debug.log*
 /public/uploads
 
 attic/
+
+/public/AUK/*
