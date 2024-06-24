@@ -40,7 +40,11 @@ Swallow は SAT ソルバを用いた求解を行っている．
    ```bash
    $ bundle install
    ```
-2. DBを作成する
+2. `npm install`する
+   ```bash
+   $ npm install
+   ```
+3. DBを作成する
    ```bash
    $ bundle exec rails db:migrate RAILS_ENV=prooduction
    ```
@@ -58,23 +62,31 @@ $ ./bin/server.sh start production
    ```bash
    $ git clone https://github.com/nomlab/modernTimes.git
    ```
-2. `bundle install`する
+2. Minisat をインストールする
+   ```bash
+    $ sudo apt install minisat
+   ```
+3. `bundle install`する
    ```bash
    $ bundle install
    ```
-3. DBを作成する
+4. `npm install`する
+   ```bash
+   $ npm install
+   ```
+5. DBを作成する
    ```bash
    $ bundle exec rails db:migrate RAILS_ENV=development
    ```
-4. ダミーデータの登録
+6. ダミーデータの登録
    ```
    $ bin/rails runner scripts/create_dummy_data.rb
    ```
-5. 起動
+7. 起動
    ```bash
    $ ./bin/server.sh start development
    ```
-起動後，ブラウザ上で http://localhost:3000 を開くと modernTimes の画面が開く 
+起動後，ブラウザ上で http://localhost:3000 を開くと modernTimes の画面が開く
 
 
 # ER diagram

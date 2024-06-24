@@ -272,7 +272,7 @@ class AssignmentsController < ApplicationController
       shift_hash = JSON.parse(json)["shifts"]
 
       days = (Date.parse(date_range["start"])..Date.parse(date_range["end"])).map{|date| date.strftime('%Y%m%d')}
-      period = ["日勤", "準夜勤", "深夜勤"]
+      period = ["day", "sem", "ngt"]
       #nurse に割り当てられている時間枠の対応関係もってくる
       nurses_assignments = []
       shift_hash.each do |shift|
@@ -304,7 +304,7 @@ class AssignmentsController < ApplicationController
 
         #{nurse_timeslots.map do |nurse, timeslots|
         "nurse \"#{nurse}\" do\n" +
-        "  timeslots \"#{timeslots.join('", "')}\n" +
+        "  timeslots \"#{timeslots.join('", "')}\"\n" +
         "end"
       end.join("\n")}
       END

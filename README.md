@@ -40,7 +40,11 @@ Swallow uses SAT solvers for schedule solving.
    ```bash
    $ bundle install
    ```
-2. Create a DB
+2. Execute `npm install`
+   ```bash
+   $ npm install
+   ```
+3. Create a DB
    ```bash
    $ bundle exec rails db:migrate RAILS_ENV=prooduction
    ```
@@ -66,15 +70,19 @@ After launching, open http://localhost:54321 in your browser to open the modernT
    ```bash
    $ bundle install
    ```
-4. Create a DB
+4. Execute `npm install`
+   ```bash
+   $ npm install
+   ```
+5. Create a DB
    ```bash
    $ bundle exec rails db:migrate RAILS_ENV=development
    ```
-5. Create a dummy data
+6. Create a dummy data
    ```
    $ bin/rails runner scripts/create_dummy_data.rb
    ```
-6. Launch
+7. Launch
    ```bash
    $ ./bin/server.sh start development
    ```
