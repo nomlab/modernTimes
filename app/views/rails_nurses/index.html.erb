@@ -1,4 +1,10 @@
-<p style="color: green"><%= notice %></p>
+<% if flash[:color] == "red" %>
+  <div class="red-text"><%= flash[:notice] %></div>
+<% elsif flash[:color] == "green" %>
+  <div class="green-text"><%= flash[:notice] %></div>
+<% else %>
+  <div><%= flash[:notice] %></div>
+<% end %>
 
 <div class="row">
   <div class="col-lg-4 col-md-12"><h2>看護師一覧</h2></div>
@@ -38,9 +44,7 @@
           <div class="d-flex">
             <%= link_to "詳細", rails_nurse_path(nurse), class: "btn btn-primary" %>
             <%= link_to "編集", edit_rails_nurse_path(nurse), class: "btn btn-success" %>
-            <% if nurse.assignments == nil %>
-              <%= button_to "削除", nurse, method: :delete, class: "btn btn-danger" %>
-            <% end %>
+            <%= button_to "削除", nurse, method: :delete, class: "btn btn-danger" %>
           </div>
         </td>
       </tr>

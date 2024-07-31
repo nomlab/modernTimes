@@ -1,4 +1,10 @@
-<p style="color: green"><%= notice %></p>
+<% if flash[:color] == "red" %>
+  <div class="red-text"><%= flash[:notice] %></div>
+<% elsif flash[:color] == "green" %>
+  <div class="green-text"><%= flash[:notice] %></div>
+<% else %>
+  <div><%= flash[:notice] %></div>
+<% end %>
 
 <%= render @assignment %>
 

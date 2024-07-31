@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ueno12345/swallow.git
-  revision: b3fc35054bf07c98b17df10af16aa556cec86c85
+  revision: cd5d234421424a51ebdc678c22c316ab2a664ec9
   branch: v2
   specs:
     swallow (0.1.0)
@@ -98,7 +98,7 @@ GEM
       rack-test (>= 0.6.3)
       regexp_parser (>= 1.5, < 3.0)
       xpath (~> 3.2)
-    concurrent-ruby (1.2.3)
+    concurrent-ruby (1.3.3)
     crass (1.0.6)
     date (3.3.4)
     debug (1.9.2)
@@ -135,7 +135,7 @@ GEM
     matrix (0.4.2)
     method_source (1.1.0)
     mini_mime (1.1.5)
-    minitest (5.23.1)
+    minitest (5.24.1)
     msgpack (1.7.2)
     net-imap (0.4.11)
       date
@@ -147,7 +147,7 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     nio4r (2.7.3)
-    nokogiri (1.16.5-x86_64-linux)
+    nokogiri (1.16.7-x86_64-linux)
       racc (~> 1.4)
     popper_js (2.11.8)
     psych (5.1.2)
@@ -155,7 +155,7 @@ GEM
     public_suffix (5.0.5)
     puma (5.6.8)
       nio4r (~> 2.0)
-    racc (1.8.0)
+    racc (1.8.1)
     rack (2.2.9)
     rack-test (2.1.0)
       rack (>= 1.3)
@@ -201,7 +201,7 @@ GEM
     rexml (3.2.8)
       strscan (>= 3.0.9)
     rubyzip (2.3.2)
-    rufo (0.17.1)
+    rufo (0.18.0)
     sassc (2.4.0)
       ffi (~> 1.9)
     sassc-rails (2.1.2)

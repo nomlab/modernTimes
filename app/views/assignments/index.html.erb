@@ -1,4 +1,10 @@
-<p style="color: green"><%= notice %></p>
+<% if flash[:color] == "red" %>
+  <div class="red-text"><%= flash[:notice] %></div>
+<% elsif flash[:color] == "green" %>
+  <div class="green-text"><%= flash[:notice] %></div>
+<% else %>
+  <div><%= flash[:notice] %></div>
+<% end %>
 
 <div class="row">
   <div class="col-lg-4 col-md-12"><h2>シフト (<%= @month.strftime("%Y-%m") %>)</h2></div>

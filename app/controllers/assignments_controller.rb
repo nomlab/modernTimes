@@ -145,23 +145,25 @@ class AssignmentsController < ApplicationController
     if solver.solve formula, solver_log: option[:debug]
       # SAT Decoding
       # TODO: Make Decode Class
-      ptable.group_by { |i| i.nurse.name }.each_value do |nrs_ptable|
+      ptable.group_by {|i| i.nurse.name}.each_value do |nrs_ptable|
+
         timeslots = []
         nurse = nrs_ptable.first.nurse
-        nrs_ptable.select { |i| i.value.value }.each do |e|
+        nrs_ptable.select{|i| i.value}.each do |e|
           timeslots.append e.timeslot.name
         end
         nurse.domain.update(timeslots.uniq, :timeslots)
       end
     else
-      puts "UNSAT"
-      exit
+      redirect_to assignments_path(month: "202406"), notice: "シフトを作成できませんでした．\n制約条件を変更してください．", flash: {color: :red}
+      return
     end
     #shift_jsonの形式 {"name"=>"nurse 5", "date"=>"2024-03-01", "shifttype"=>"日勤"}
     shift_json = ast.to_json
     create_assignments(shift_json)
 #    @html = ast.to_html
 #"    redirect_to solve_path(result: @html)
+    redirect_to assignments_path(month: "202406"), notice: "シフトを作成しました．\n制約条件は成立可能です．", flash: {color: :green}
   end
 
   def download
