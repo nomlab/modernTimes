@@ -133,11 +133,10 @@ class AssignmentsController < ApplicationController
     # AUK Parser
     parser = AUKParser.new
     parser.parse File.read(file) if file
-
     ast = parser.ast
+
     # SAT Encoder
     ptable = PropTable.new(ast)
-
     formula = ast.to_cnf(ptable)
 
     # Solving
@@ -145,11 +144,10 @@ class AssignmentsController < ApplicationController
     if solver.solve formula, solver_log: option[:debug]
       # SAT Decoding
       # TODO: Make Decode Class
-      ptable.group_by {|i| i.nurse.name}.each_value do |nrs_ptable|
-
+      ptable.group_by { |i| i.nurse.name }.each_value do |nrs_ptable|
         timeslots = []
         nurse = nrs_ptable.first.nurse
-        nrs_ptable.select{|i| i.value}.each do |e|
+        nrs_ptable.select { |i| i.value.value }.each do |e|
           timeslots.append e.timeslot.name
         end
         nurse.domain.update(timeslots.uniq, :timeslots)

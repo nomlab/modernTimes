@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ueno12345/swallow.git
-  revision: cd5d234421424a51ebdc678c22c316ab2a664ec9
+  revision: efe7b9842fb5910b4a8dd3f1c980b50e8e47577f
   branch: v2
   specs:
     swallow (0.1.0)
