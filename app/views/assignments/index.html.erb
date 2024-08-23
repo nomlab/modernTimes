@@ -7,15 +7,41 @@
 <% end %>
 
 <div class="row">
-  <div class="col-lg-4 col-md-12"><h2>シフト (<%= @month.strftime("%Y-%m") %>)</h2></div>
-  <div class="col-lg-4 col-md-0"></div>
-  <div class="col-lg-2 col-md-12"><%= link_to "#{@month.strftime("%Y")}年#{@month.strftime("%m")}月の勤務表作成", create_assignment_path(month: (@month).strftime("%Y%m")), class: "btn btn-outline-primary" %></div>
-  <div class="col-lg-2 col-md-12"><%= link_to "AUK ファイルをダウンロード", auk_download_path(month: (@month).strftime("%Y%m")), class: 'btn btn-primary' %></div>
+  <div class="col-lg-8 col-md-12">
+    <h2>
+      シフト (<%= @month.strftime("%Y-%m") %>)
+      <%= link_to "＜", assignments_path(month: (@month << 1).strftime("%Y%m")) %>
+      <%= link_to "＞", assignments_path(month: (@month >> 1).strftime("%Y%m")) %>
+    </h2>
+  </div>
+  <div class="col-lg-4 col-md-12">
+    <%= link_to "#{@month.strftime("%Y")}年#{@month.strftime("%m")}月の勤務表作成", create_assignment_path(month: (@month).strftime("%Y%m")), class: "btn btn-outline-primary" %>
+    <%= link_to "AUK ファイルをダウンロード", auk_download_path(month: (@month).strftime("%Y%m")), class: 'btn btn-primary' %>
+  </div>
 </div>
-<%= link_to "←", assignments_path(month: (@month <<1).strftime("%Y%m")) %>
-<%= link_to "→", assignments_path(month: (@month >>1).strftime("%Y%m")) %>
 
-<div id="assignments" data-turbo-frame="assignments">
+<div class="col-lg-4 col-md-12">
+  <!-- 表示切り替えボタン -->
+  <div>
+    <button id="month-view-btn">月表示</button>
+    <button id="week-view-btn">週表示</button>
+  </div>
+  <div id="week-selector" style="display: none;">
+    <select id="week-dropdown">
+      <% start_date = @month.beginning_of_month %>
+      <% end_date = @month.end_of_month %>
+      <% week_ranges = (start_date..end_date).each_slice(7).to_a %>
+      <% week_ranges.each_with_index do |week_dates, index| %>
+        <option value="<%= index %>">
+          <%= week_dates.first.strftime("%Y年%-m月%-d日") %> - <%= week_dates.last.strftime("%-d日") %>
+        </option>
+      <% end %>
+    </select>
+  </div>
+</div>
+
+
+<div id="calendar-container" data-turbo-frame="assignments">
   <% assignment_table = {} %>
   <% week = ["日","月","火","水","木","金","土"] %>
   <% shifts = {@shift_names.first => "bg-day", @shift_names.second => "bg-sem", @shift_names.third => "bg-ngt"} %>
@@ -36,90 +62,194 @@
     <% end %>
   <% end %>
 
-  <table oncontextmenu="return false;">
-    <caption>
-      <%= @month.strftime("%Y") %>年度<%= @month.strftime("%m") %>月勤務表
-    </caption>
-    <tr>
-      <th class="right"></th>
-      <% (@month...(@month >> 1)).each do |date| %>
-        <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
-          <th class="center-align bg-holidays"><%= date.strftime("%d") %></th>
-        <% else %>
-          <th class="center-align"><%= date.strftime("%d") %></th>
-        <% end %>
-      <% end %>
-      <th class="center-align bg-sem"><%= @shift_names.second.first %></th>
-      <th class="center-align bg-ngt"><%= @shift_names.third.first %></th>
-      <th class="center-align bg-semngt"><%= "夜" %></th>
-      <th class="center-align bg-day"><%= @shift_names.first.first %></th>
-      <th class="center-align bg-off"><%= @shift_names.fourth.first %></th>
-      <th class="center-align"><%= "未" %></th>
-    </tr>
-    <tr>
-      <td class="right bottom"></td>
-      <% (@month...(@month >> 1)).each do |date| %>
-        <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
-          <td class="center-align bg-holidays bottom"><%= week[date.wday] %></td>
-        <% else %>
-          <td class="center-align bottom"><%= week[date.wday] %></td>
-        <% end %>
-      <% end %>
-      <td class="center-align bg-sem bottom"></td>
-      <td class="center-align bg-ngt bottom"></td>
-      <td class="center-align bg-semngt bottom"></td>
-      <td class="center-align bg-day bottom"></td>
-      <td class="center-align bg-off bottom"></td>
-      <td class="center-align bottom"></td>
-    </tr>
-
-    <% @nurses.each do |nurse| %>
-      <% nurse_assignments = nurse.assignments || [] %>
-      <% next if nurse_assignments.blank? %>
-      <% if nurse_assignments.any?{|a| @date_range.cover?(a.date)} %>
-        <tr>
-          <td class="left-align right" width="10%"><%= link_to_if nurse.name, nurse.name, nurse %></td>
-          <% (@month...(@month >> 1)).each do |date| %>
-            <% assignment = nurse_assignments.find { |a| a.date == date } %>
-            <% shift_name = assignment&.shift_type&.name&.first %>
-            <% shift_class = shift_classes[shift_name] %>
-            <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
-              <td class="center-align <%= shift_class %> bg-holidays" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
-            <% else %>
-              <td class="center-align <%= shift_class %>" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
-            <% end %>
+  <!-- 月カレンダ -->
+  <div id="month-view" style="display: block;">
+    <table oncontextmenu="return false;">
+      <caption>
+        <%= @month.strftime("%Y") %>年度<%= @month.strftime("%m") %>月勤務表
+      </caption>
+      <tr>
+        <th class="right"></th>
+        <% (@month...(@month >> 1)).each do |date| %>
+          <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
+            <th class="center-align bg-holidays"><%= date.strftime("%d") %></th>
+          <% else %>
+            <th class="center-align"><%= date.strftime("%d") %></th>
           <% end %>
-          <td class="right-align bg-sem"><%= @nurse_shift_counts[nurse.id][@shift_names.second] %></td>
-          <td class="right-align bg-ngt"><%= @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
-          <td class="right-align bg-semngt"><%= @nurse_shift_counts[nurse.id][@shift_names.second] + @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
-          <td class="right-align bg-day"><%= @nurse_shift_counts[nurse.id][@shift_names.first] %></td>
-          <td class="right-align bg-off"><%= @nurse_shift_counts[nurse.id][@shift_names.fourth] %></td>
-          <td class="right-align"><%= ((@month >> 1) - @month).to_i - @nurse_shift_counts[nurse.id].values.sum %></td>
+        <% end %>
+        <th class="center-align bg-sem"><%= @shift_names.second.first %></th>
+        <th class="center-align bg-ngt"><%= @shift_names.third.first %></th>
+        <th class="center-align bg-semngt"><%= "夜" %></th>
+        <th class="center-align bg-day"><%= @shift_names.first.first %></th>
+        <th class="center-align bg-off"><%= @shift_names.fourth.first %></th>
+        <th class="center-align"><%= "未" %></th>
+      </tr>
+      <tr>
+        <td class="right bottom"></td>
+        <% (@month...(@month >> 1)).each do |date| %>
+          <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
+            <td class="center-align bg-holidays bottom"><%= week[date.wday] %></td>
+          <% else %>
+            <td class="center-align bottom"><%= week[date.wday] %></td>
+          <% end %>
+        <% end %>
+        <td class="center-align bg-sem bottom"></td>
+        <td class="center-align bg-ngt bottom"></td>
+        <td class="center-align bg-semngt bottom"></td>
+        <td class="center-align bg-day bottom"></td>
+        <td class="center-align bg-off bottom"></td>
+        <td class="center-align bottom"></td>
+      </tr>
+
+      <% @nurses.each do |nurse| %>
+        <% nurse_assignments = nurse.assignments || [] %>
+        <% next if nurse_assignments.blank? %>
+        <% if nurse_assignments.any?{|a| @date_range.cover?(a.date)} %>
+          <tr>
+            <td class="left-align right" width="10%"><%= link_to_if nurse.name, nurse.name, nurse %></td>
+            <% (@month...(@month >> 1)).each do |date| %>
+              <% assignment = nurse_assignments.find { |a| a.date == date } %>
+              <% shift_name = assignment&.shift_type&.name&.first %>
+              <% shift_class = shift_classes[shift_name] %>
+              <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
+                <td class="center-align <%= shift_class %> bg-holidays" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+              <% else %>
+                <td class="center-align <%= shift_class %>" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+              <% end %>
+            <% end %>
+            <td class="right-align bg-sem"><%= @nurse_shift_counts[nurse.id][@shift_names.second] %></td>
+            <td class="right-align bg-ngt"><%= @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
+            <td class="right-align bg-semngt"><%= @nurse_shift_counts[nurse.id][@shift_names.second] + @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
+            <td class="right-align bg-day"><%= @nurse_shift_counts[nurse.id][@shift_names.first] %></td>
+            <td class="right-align bg-off"><%= @nurse_shift_counts[nurse.id][@shift_names.fourth] %></td>
+            <td class="right-align"><%= ((@month >> 1) - @month).to_i - @nurse_shift_counts[nurse.id].values.sum %></td>
+          </tr>
+        <% end %>
+      <% end %>
+      <% shifts.each do |shift| %>
+        <tr>
+          <td class="left-align <%= shifts[shift.first] %> right top">総<%= shift.first %>合計</td>
+          <% (@month...(@month >> 1)).each do |date| %>
+            <td class="right-align <%= shifts[shift.first] %> top"><%= @daily_shift_counts[date][shift.first] %></td>
+          <% end %>
         </tr>
       <% end %>
-    <% end %>
-    <% shifts.each do |shift| %>
-      <tr>
-        <td class="left-align <%= shifts[shift.first] %> right top">総<%= shift.first %>合計</td>
-        <% (@month...(@month >> 1)).each do |date| %>
-          <td class="right-align <%= shifts[shift.first] %> top"><%= @daily_shift_counts[date][shift.first] %></td>
-        <% end %>
-      </tr>
-    <% end %>
-  </table>
+    </table>
+  </div>
 
-  <table border="1">
-    <% (-1..1).each do |year| %>
-      <tr>
-        <th><%= (Date.today.strftime("%Y").to_i + year).to_s %>年</th>
-        <% (1..12).each do |month| %>
-          <% month = month.to_s %>
-          <% if month.length == 1 %>
-            <% month = "0" + month %>
+  <!-- 週カレンダ -->
+  <div id="week-view" style="display: none;">
+    <% start_date = @month.beginning_of_month %>
+    <% end_date = @month.end_of_month %>
+    <% (start_date..end_date).each_slice(7) do |week_dates| %>
+      <div class="week-table-wrapper" style="display: none;">
+        <table oncontextmenu="return false;">
+          <caption>
+            <%= week_dates.first.strftime("%Y年%-m月%-d日") %> - <%= week_dates.last.strftime("%-d日") %> 勤務表
+          </caption>
+          <tr>
+            <th class="right"></th>
+            <% week_dates.each do |date| %>
+              <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
+                <th class="center-align bg-holidays"><%= date.strftime("%d") %></th>
+              <% else %>
+                <th class="center-align"><%= date.strftime("%d") %></th>
+              <% end %>
+            <% end %>
+            <th class="center-align bg-sem"><%= @shift_names.second.first %></th>
+            <th class="center-align bg-ngt"><%= @shift_names.third.first %></th>
+            <th class="center-align bg-semngt"><%= "夜" %></th>
+            <th class="center-align bg-day"><%= @shift_names.first.first %></th>
+            <th class="center-align bg-off"><%= @shift_names.fourth.first %></th>
+            <th class="center-align"><%= "未" %></th>
+          </tr>
+          <tr>
+            <td class="right bottom"></td>
+            <% week_dates.each do |date| %>
+              <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
+                <td class="center-align bg-holidays bottom"><%= week[date.wday] %></td>
+              <% else %>
+                <td class="center-align bottom"><%= week[date.wday] %></td>
+              <% end %>
+            <% end %>
+            <td class="center-align bg-sem bottom"></td>
+            <td class="center-align bg-ngt bottom"></td>
+            <td class="center-align bg-semngt bottom"></td>
+            <td class="center-align bg-day bottom"></td>
+            <td class="center-align bg-off bottom"></td>
+            <td class="center-align bottom"></td>
+          </tr>
+
+          <% @nurses.each do |nurse| %>
+            <% nurse_assignments = nurse.assignments || [] %>
+            <% next if nurse_assignments.blank? %>
+            <% week_range = week_dates.first..week_dates.last %>
+            <% if nurse_assignments.any? { |a| week_range.cover?(a.date) } %>
+              <tr>
+                <td class="left-align right" width="10%"><%= link_to_if nurse.name, nurse.name, nurse %></td>
+                <% week_dates.each do |date| %>
+                  <% assignment = nurse_assignments.find { |a| a.date == date } %>
+                  <% shift_name = assignment&.shift_type&.name&.first %>
+                  <% shift_class = shift_classes[shift_name] %>
+                  <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
+                    <td class="center-align <%= shift_class %> bg-holidays" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+                  <% else %>
+                    <td class="center-align <%= shift_class %>" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+                  <% end %>
+                <% end %>
+                <td class="right-align bg-sem"><%= @nurse_shift_counts[nurse.id][@shift_names.second] %></td>
+                <td class="right-align bg-ngt"><%= @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
+                <td class="right-align bg-semngt"><%= @nurse_shift_counts[nurse.id][@shift_names.second] + @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
+                <td class="right-align bg-day"><%= @nurse_shift_counts[nurse.id][@shift_names.first] %></td>
+                <td class="right-align bg-off"><%= @nurse_shift_counts[nurse.id][@shift_names.fourth] %></td>
+                <td class="right-align"><%= week_dates.size - @nurse_shift_counts[nurse.id].values.sum %></td>
+              </tr>
+            <% end %>
           <% end %>
-          <td><%= link_to month + "月", assignments_path(month: ((Date.today.strftime("%Y").to_i + year).to_s + month)) %></td>
-        <% end %>
-      </tr>
+          <% shifts.each do |shift| %>
+            <tr>
+              <td class="left-align <%= shifts[shift.first] %> right top">総<%= shift.first %>合計</td>
+              <% week_dates.each do |date| %>
+                <td class="right-align <%= shifts[shift.first] %> top"><%= @daily_shift_counts[date][shift.first] %></td>
+              <% end %>
+            </tr>
+          <% end %>
+        </table>
+      </div>
     <% end %>
-  </table>
+  </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const monthViewBtn = document.getElementById("month-view-btn");
+  const weekViewBtn = document.getElementById("week-view-btn");
+  const weekSelector = document.getElementById("week-selector");
+  const calendarContainer = document.getElementById("calendar-container");
+  const weekView = document.getElementById("week-view");
+  const monthView = document.getElementById("month-view");
+
+  monthViewBtn.addEventListener("click", function() {
+    weekSelector.style.display = "none";
+    weekView.style.display = "none";
+    monthView.style.display = "block";
+  });
+
+  weekViewBtn.addEventListener("click", function() {
+    weekSelector.style.display = "block";
+    monthView.style.display = "none";
+    weekView.style.display = "block";
+    displayWeekCalendar();
+  });
+
+  function displayWeekCalendar() {
+    const selectedWeek = document.getElementById("week-dropdown").value;
+    const weekTables = document.querySelectorAll("#week-view .week-table-wrapper");
+    weekTables.forEach((table, index) => {
+      table.style.display = index.toString() === selectedWeek ? "block" : "none";
+    });
+  }
+
+  document.getElementById("week-dropdown").addEventListener("change", displayWeekCalendar);
+});
+</script>
