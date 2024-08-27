@@ -106,7 +106,7 @@
         <% next if nurse_assignments.blank? %>
         <% if nurse_assignments.any?{|a| @date_range.cover?(a.date)} %>
           <tr>
-            <td class="left-align right" width="10%"><%= link_to_if nurse.name, nurse.name, nurse %></td>
+            <td class="left-align right" width="10%"><%= link_to_if nurse.name, nurse.name, rails_nurse_path(nurse.id, month: (@month).strftime("%Y%m")) %></td>
             <% (@month...(@month >> 1)).each do |date| %>
               <% assignment = nurse_assignments.find { |a| a.date == date } %>
               <% shift_name = assignment&.shift_type&.name&.first %>
@@ -186,7 +186,7 @@
             <% week_range = week_dates.first..week_dates.last %>
             <% if nurse_assignments.any? { |a| week_range.cover?(a.date) } %>
               <tr>
-                <td class="left-align right" width="10%"><%= link_to_if nurse.name, nurse.name, nurse %></td>
+                <td class="left-align right" width="10%"><%= link_to_if nurse.name, nurse.name, rails_nurse_path(nurse.id, month: (@month).strftime("%Y%m")) %></td>
                 <% week_dates.each do |date| %>
                   <% assignment = nurse_assignments.find { |a| a.date == date } %>
                   <% shift_name = assignment&.shift_type&.name&.first %>
