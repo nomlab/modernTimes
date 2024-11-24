@@ -78,6 +78,6 @@ group :test do
   gem "webdrivers"
 end
 
-gem "swallow", git: "https://github.com/ueno12345/swallow.git", branch: "v2"
+gem "swallow", git: "https://github.com/ueno12345/swallow.git", branch: "main"
 
 gem "holiday_jp"
