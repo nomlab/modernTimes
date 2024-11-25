@@ -1,25 +1,20 @@
 timeslot do
-  days "20240301", "20240302", "20240303"
+  days "20240901", "20240902", "20240903", "20240904", "20240905", "20240906", "20240907", "20240908", "20240909", "20240910", "20240911", "20240912", "20240913", "20240914", "20240915", "20240916", "20240917", "20240918", "20240919", "20240920", "20240921", "20240922", "20240923", "20240924", "20240925", "20240926", "20240927", "20240928", "20240929", "20240930"
   period "day", "sem", "ngt"
 end
 
-nurse "nurse 3" do
+nurse "山田 太郎" do
+  timeslots "20240901day", "20240905ngt", "20240907sem"
 end
-
-nurse "nurse 4" do
+nurse "佐藤 花子" do
+  timeslots "20240901day", "20240902ngt", "20240903sem", "20240905day", "20240906day", "20240907ngt"
 end
-
-nurse "nurse 5" do
+nurse "鈴木 一郎" do
+  timeslots "20240901day", "20240902day", "20240903ngt"
 end
-
-exactly 1 do
-  timeslot {day} & nurse {any}
+nurse "高橋 美咲" do
+  timeslots "20240901sem", "20240902day", "20240904sem", "20240905day", "20240907day"
 end
-
-exactly 1 do
-  timeslot {sem} & nurse {any}
-end
-
-exactly 1 do
-  timeslot {ngt} & nurse {any}
+nurse "田中 健" do
+  timeslots "20240901ngt", "20240904sem", "20240905day", "20240906sem"
 end

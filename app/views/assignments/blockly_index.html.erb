@@ -2,7 +2,7 @@
 
 <p>
   <button onclick="showAUKCode()">コードを確認</button>
-  <button onclick="runAUKCode()">実行</button>
+  <button onclick="runAUKCode()">ダウンロード</button>
 </p>
 
 <div id="blocklyDiv" style="height: 960px; width: 1200px;"></div>
@@ -636,10 +636,10 @@ Blockly.Python["schedule"] = function(block) {
 
   var daysInMonth = new Date(year, month, 0).getDate();
   var dateString = '"';
-  for (var day = 1; day <= daysInMonth; day++) {
+  for (var day = 1; day <= 7; day++) {
     formattedDate = year + (month < 10 ? '0' : '') + month + (day < 10 ? '0' : '') + day;
     dateString += formattedDate;
-    if (day < daysInMonth) {
+    if (day < 7) {
       dateString += '", "';
     }
   }

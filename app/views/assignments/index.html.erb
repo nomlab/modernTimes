@@ -63,7 +63,7 @@
   <% end %>
 
   <!-- 月カレンダ -->
-  <div id="month-view" style="display: block;">
+  <div id="month-view" style="display: none;">
     <table oncontextmenu="return false;">
       <caption>
         <%= @month.strftime("%Y") %>年度<%= @month.strftime("%m") %>月勤務表
@@ -106,23 +106,23 @@
         <% next if nurse_assignments.blank? %>
         <% if nurse_assignments.any?{|a| @date_range.cover?(a.date)} %>
           <tr>
-            <td class="left-align right" width="10%"><%= link_to_if nurse.name, nurse.name, rails_nurse_path(nurse.id, month: (@month).strftime("%Y%m")) %></td>
+            <td class="left-align right nurse-<%= nurse.id %>" width="10%"><%= link_to_if nurse.name, nurse.name, rails_nurse_path(nurse.id, month: (@month).strftime("%Y%m")) %></td>
             <% (@month...(@month >> 1)).each do |date| %>
               <% assignment = nurse_assignments.find { |a| a.date == date } %>
               <% shift_name = assignment&.shift_type&.name&.first %>
               <% shift_class = shift_classes[shift_name] %>
               <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
-                <td class="center-align <%= shift_class %> bg-holidays" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+                <td class="center-align <%= shift_class %> bg-holidays nurse-<%= nurse.id %> date-<%= date %> month" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
               <% else %>
-                <td class="center-align <%= shift_class %>" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+                <td class="center-align <%= shift_class %> nurse-<%= nurse.id %> date-<%= date %> month" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
               <% end %>
             <% end %>
-            <td class="right-align bg-sem"><%= @nurse_shift_counts[nurse.id][@shift_names.second] %></td>
-            <td class="right-align bg-ngt"><%= @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
-            <td class="right-align bg-semngt"><%= @nurse_shift_counts[nurse.id][@shift_names.second] + @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
-            <td class="right-align bg-day"><%= @nurse_shift_counts[nurse.id][@shift_names.first] %></td>
-            <td class="right-align bg-off"><%= @nurse_shift_counts[nurse.id][@shift_names.fourth] %></td>
-            <td class="right-align"><%= ((@month >> 1) - @month).to_i - @nurse_shift_counts[nurse.id].values.sum %></td>
+            <td class="right-align bg-sem nurse-<%= nurse.id %> month" id="sem_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.second] %></td>
+            <td class="right-align bg-ngt nurse-<%= nurse.id %> month" id="ngt_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
+            <td class="right-align bg-semngt nurse-<%= nurse.id %> month" id="semngt_sum" ><%= @nurse_shift_counts[nurse.id][@shift_names.second] + @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
+            <td class="right-align bg-day nurse-<%= nurse.id %> month" id="day_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.first] %></td>
+            <td class="right-align bg-off nurse-<%= nurse.id %> month" id="off_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.fourth] %></td>
+            <td class="right-align nurse-<%= nurse.id %> month" id="shift_sum"><%= ((@month >> 1) - @month).to_i - @nurse_shift_counts[nurse.id].values.sum %></td>
           </tr>
         <% end %>
       <% end %>
@@ -130,7 +130,7 @@
         <tr>
           <td class="left-align <%= shifts[shift.first] %> right top">総<%= shift.first %>合計</td>
           <% (@month...(@month >> 1)).each do |date| %>
-            <td class="right-align <%= shifts[shift.first] %> top"><%= @daily_shift_counts[date][shift.first] %></td>
+            <td class="right-align <%= shifts[shift.first] %> date-<%= date %> top month" id="<%= shifts[shift.first] %>_sum"><%= @daily_shift_counts[date][shift.first] %></td>
           <% end %>
         </tr>
       <% end %>
@@ -138,11 +138,11 @@
   </div>
 
   <!-- 週カレンダ -->
-  <div id="week-view" style="display: none;">
+  <div id="week-view" style="display: block;">
     <% start_date = @month.beginning_of_month %>
-    <% end_date = @month.end_of_month %>
+    <% end_date = Date.new(2024, 9, 7) %>
     <% (start_date..end_date).each_slice(7) do |week_dates| %>
-      <div class="week-table-wrapper" style="display: none;">
+      <div class="week-table-wrapper" style="display: block;">
         <table oncontextmenu="return false;">
           <caption>
             <%= week_dates.first.strftime("%Y年%-m月%-d日") %> - <%= week_dates.last.strftime("%-d日") %> 勤務表
@@ -186,23 +186,23 @@
             <% week_range = week_dates.first..week_dates.last %>
             <% if nurse_assignments.any? { |a| week_range.cover?(a.date) } %>
               <tr>
-                <td class="left-align right" width="10%"><%= link_to_if nurse.name, nurse.name, rails_nurse_path(nurse.id, month: (@month).strftime("%Y%m")) %></td>
+                <td class="left-align right nurse-<%= nurse.id %>" width="10%"><%= link_to_if nurse.name, nurse.name, rails_nurse_path(nurse.id, month: (@month).strftime("%Y%m")) %></td>
                 <% week_dates.each do |date| %>
                   <% assignment = nurse_assignments.find { |a| a.date == date } %>
                   <% shift_name = assignment&.shift_type&.name&.first %>
                   <% shift_class = shift_classes[shift_name] %>
                   <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
-                    <td class="center-align <%= shift_class %> bg-holidays" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+                    <td class="center-align <%= shift_class %> bg-holidays nurse-<%= nurse.id %> date-<%= date %> week" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
                   <% else %>
-                    <td class="center-align <%= shift_class %>" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+                    <td class="center-align <%= shift_class %> nurse-<%= nurse.id %> date-<%= date %> week" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
                   <% end %>
                 <% end %>
-                <td class="right-align bg-sem"><%= @nurse_shift_counts[nurse.id][@shift_names.second] %></td>
-                <td class="right-align bg-ngt"><%= @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
-                <td class="right-align bg-semngt"><%= @nurse_shift_counts[nurse.id][@shift_names.second] + @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
-                <td class="right-align bg-day"><%= @nurse_shift_counts[nurse.id][@shift_names.first] %></td>
-                <td class="right-align bg-off"><%= @nurse_shift_counts[nurse.id][@shift_names.fourth] %></td>
-                <td class="right-align"><%= week_dates.size - @nurse_shift_counts[nurse.id].values.sum %></td>
+                <td class="right-align bg-sem nurse-<%= nurse.id %> week" id="sem_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.second] %></td>
+                <td class="right-align bg-ngt nurse-<%= nurse.id %> week" id="ngt_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
+                <td class="right-align bg-semngt nurse-<%= nurse.id %> week" id="semngt_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.second] + @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
+                <td class="right-align bg-day nurse-<%= nurse.id %> week" id="day_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.first] %></td>
+                <td class="right-align bg-off nurse-<%= nurse.id %> week" id="off_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.fourth] %></td>
+                <td class="right-align nurse-<%= nurse.id %> week" id="shift_sum"><%= week_dates.size - @nurse_shift_counts[nurse.id].values.sum %></td>
               </tr>
             <% end %>
           <% end %>
@@ -210,7 +210,7 @@
             <tr>
               <td class="left-align <%= shifts[shift.first] %> right top">総<%= shift.first %>合計</td>
               <% week_dates.each do |date| %>
-                <td class="right-align <%= shifts[shift.first] %> top"><%= @daily_shift_counts[date][shift.first] %></td>
+                <td class="right-align <%= shifts[shift.first] %> date-<%= date %> top week" id="<%= shifts[shift.first] %>_sum"><%= @daily_shift_counts[date][shift.first] %></td>
               <% end %>
             </tr>
           <% end %>
@@ -251,5 +251,137 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   document.getElementById("week-dropdown").addEventListener("change", displayWeekCalendar);
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  const shift_type_el = document.querySelectorAll("#shift_type");
+  const shift_type_lists = ["日", "準", "深", "休"];
+
+  // シフトタイプの変更処理
+  shift_type_el.forEach(function(el) {
+    el.addEventListener("contextmenu", function(event) {
+      event.preventDefault(); // 右クリックメニューを防ぐ
+
+      // クリックされたセルのnurse idを取得
+      const classList = el.classList;
+      const nurseIdClass = Array.from(classList).find(cls => cls.startsWith('nurse-'));
+      const dateClass = Array.from(classList).find(cls => cls.startsWith('date-'));
+      const nurseId = nurseIdClass ? nurseIdClass.split('-')[1] : null;
+      const parts = dateClass.split('-');
+      const result = `${parts[1]}-${parts[2]}-${parts[3]}`;
+      const date = dateClass ? result : null;
+
+      const currentShiftType = el.textContent.trim();    // 現在のシフトタイプを取得
+      let next_shift_type = "";
+
+      // 次のシフトタイプを決定
+      shift_type_lists.forEach((type, index) => {
+        if (currentShiftType === type) {
+          next_shift_type = shift_type_lists[(index + 1) % shift_type_lists.length];
+        }
+      });
+
+      // シフトタイプを更新
+      el.textContent = next_shift_type;
+
+      // 合計の更新処理を呼び出す
+      updateSumElements(nurseId, date);
+    });
+  });
+
+  // 合計値を更新するための関数
+  function updateSumElements(nurseId, date) {
+    // クリックされたnurseIdに対応するシフトタイプをカウント
+    let weekdayCount = 0, weeksemCount = 0, weekngtCount = 0, weekoffCount = 0;
+    let monthdayCount = 0, monthsemCount = 0, monthngtCount = 0, monthoffCount = 0;
+    let weekdatedayCount = 0, weekdatesemCount = 0, weekdatengtCount = 0;
+    let monthdatedayCount = 0, monthdatesemCount = 0, monthdatengtCount = 0;
+    console.log(date);
+
+    // 週表示テーブルのナースごとのセルを取得してカウント
+    const weeknurseElements = document.querySelectorAll(`td.nurse-${nurseId}.week`);
+    weeknurseElements.forEach(function(element) {
+      let text = element.textContent.trim();
+      switch(text) {
+        case "日": weekdayCount++; break;
+        case "準": weeksemCount++; break;
+        case "深": weekngtCount++; break;
+        case "休": weekoffCount++; break;
+      }
+    });
+
+    // 月表示テーブルのナースごとのセルを取得してカウント
+    const monthnurseElements = document.querySelectorAll(`td.nurse-${nurseId}.month`);
+    monthnurseElements.forEach(function(element) {
+      let text = element.textContent.trim();
+      switch(text) {
+        case "日": monthdayCount++; break;
+        case "準": monthsemCount++; break;
+        case "深": monthngtCount++; break;
+        case "休": monthoffCount++; break;
+      }
+    });
+
+    // 週表示テーブルのナースごとのセルを取得してカウント
+    const weekdateElements = document.querySelectorAll(`td.date-${date}.week`);
+    weekdateElements.forEach(function(element) {
+      let text = element.textContent.trim();
+      switch(text) {
+        case "日": weekdatedayCount++; break;
+        case "準": weekdatesemCount++; break;
+        case "深": weekdatengtCount++; break;
+        case "休": weekdateoffCount++; break;
+      }
+    });
+
+    // 月表示テーブルのナースごとのセルを取得してカウント
+    const monthdateElements = document.querySelectorAll(`td.date-${date}.month`);
+    monthdateElements.forEach(function(element) {
+      let text = element.textContent.trim();
+      switch(text) {
+        case "日": monthdatedayCount++; break;
+        case "準": monthdatesemCount++; break;
+        case "深": monthdatengtCount++; break;
+        case "休": monthdateoffCount++; break;
+      }
+    });
+
+    // 週の合計を更新
+    updateSumElement('week#day_sum', weekdayCount, nurseId);
+    updateSumElement('week#sem_sum', weeksemCount, nurseId);
+    updateSumElement('week#ngt_sum', weekngtCount, nurseId);
+    updateSumElement('week#off_sum', weekoffCount, nurseId);
+    updateSumElement('week#semngt_sum', weeksemCount + weekngtCount, nurseId);
+    updateSumElement2('week#bg-day_sum', weekdatedayCount, date);
+    updateSumElement2('week#bg-sem_sum', weekdatesemCount, date);
+    updateSumElement2('week#bg-ngt_sum', weekdatengtCount, date);
+
+    // 月の合計を更新
+    updateSumElement('month#day_sum', monthdayCount, nurseId);
+    updateSumElement('month#sem_sum', monthsemCount, nurseId);
+    updateSumElement('month#ngt_sum', monthngtCount, nurseId);
+    updateSumElement('month#off_sum', monthoffCount, nurseId);
+    updateSumElement('month#semngt_sum', monthsemCount + monthngtCount, nurseId);
+    updateSumElement2('month#bg-day_sum', monthdatedayCount, date);
+    updateSumElement2('month#bg-sem_sum', monthdatesemCount, date);
+    updateSumElement2('month#bg-ngt_sum', monthdatengtCount, date);
+}
+
+  // 合計を表示するための要素を更新
+  function updateSumElement(className, value, nurseId) {
+    const sumElement = document.querySelector(`td.nurse-${nurseId}.${className}`);
+    if (sumElement) {
+      sumElement.textContent = value;
+    }
+  }
+
+  // 合計を表示するための要素を更新
+  function updateSumElement2(className, value, date) {
+    const sumElement2 = document.querySelector(`td.date-${date}.${className}`);
+    console.log(date);
+    if (sumElement2) {
+      sumElement2.textContent = value;
+    }
+  }
 });
 </script>
