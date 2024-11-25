@@ -26,18 +26,30 @@
     <button id="month-view-btn">月表示</button>
     <button id="week-view-btn">週表示</button>
   </div>
-  <div id="week-selector" style="display: none;">
-    <select id="week-dropdown">
-      <% start_date = @month.beginning_of_month %>
-      <% end_date = @month.end_of_month %>
-      <% week_ranges = (start_date..end_date).each_slice(7).to_a %>
-      <% week_ranges.each_with_index do |week_dates, index| %>
-        <option value="<%= index %>">
-          <%= week_dates.first.strftime("%Y年%-m月%-d日") %> - <%= week_dates.last.strftime("%-d日") %>
-        </option>
-      <% end %>
-    </select>
-  </div>
+<div id="week-selector" style="display: none;">
+  <select id="week-dropdown">
+    <% start_date = @month.beginning_of_month %>
+    <% start_date -= start_date.wday - 1 if start_date.wday != 1 %>
+    <% if @month.beginning_of_month.wday != 1 %>
+      <% start_date = @month.beginning_of_month.beginning_of_week(:monday) %>
+    <% end %>
+    <% end_date = @month.end_of_month %>
+    <% week_ranges = [] %>
+    <% current_start_date = start_date %>
+    <% while current_start_date <= end_date %>
+      <% current_end_date = current_start_date + 6.days %>
+      <% week_ranges << (current_start_date..current_end_date) %>
+      <% current_start_date = current_end_date + 1.day %>
+    <% end %>
+
+    <% week_ranges.each_with_index do |week_dates, index| %>
+      <option value="<%= index %>">
+        <%= week_dates.first.strftime("%Y年%-m月%-d日") %> - <%= week_dates.last.strftime("%Y年%-m月%-d日") %>
+      </option>
+    <% end %>
+  </select>
+</div>
+
 </div>
 
 
@@ -140,12 +152,23 @@
   <!-- 週カレンダ -->
   <div id="week-view" style="display: block;">
     <% start_date = @month.beginning_of_month %>
-    <% end_date = Date.new(2024, 9, 7) %>
-    <% (start_date..end_date).each_slice(7) do |week_dates| %>
-      <div class="week-table-wrapper" style="display: block;">
+    <% start_date -= start_date.wday - 1 if start_date.wday != 1 %>
+    <% if @month.beginning_of_month.wday != 1 %>
+      <% start_date = @month.beginning_of_month.beginning_of_week(:monday) %>
+    <% end %>
+    <% end_date = @month.end_of_month %>
+    <% week_ranges = [] %>
+    <% current_start_date = start_date %>
+    <% while current_start_date <= end_date %>
+      <% current_end_date = current_start_date + 6.days %>
+      <% week_ranges << (current_start_date..current_end_date) %>
+      <% current_start_date = current_end_date + 1.day %>
+    <% end %>
+    <% week_ranges.each_with_index do |week_dates, index| %>
+      <div class="week-table-wrapper" id="week-<%= index %>" style="<%= index == 0 ? 'display: block;' : 'display: none;' %>">
         <table oncontextmenu="return false;">
           <caption>
-            <%= week_dates.first.strftime("%Y年%-m月%-d日") %> - <%= week_dates.last.strftime("%-d日") %> 勤務表
+            <%= week_dates.first.strftime("%Y年%-m月%-d日") %> - <%= week_dates.last.strftime("%Y年%-m月%-d日") %> 勤務表
           </caption>
           <tr>
             <th class="right"></th>
@@ -202,7 +225,7 @@
                 <td class="right-align bg-semngt nurse-<%= nurse.id %> week" id="semngt_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.second] + @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
                 <td class="right-align bg-day nurse-<%= nurse.id %> week" id="day_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.first] %></td>
                 <td class="right-align bg-off nurse-<%= nurse.id %> week" id="off_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.fourth] %></td>
-                <td class="right-align nurse-<%= nurse.id %> week" id="shift_sum"><%= week_dates.size - @nurse_shift_counts[nurse.id].values.sum %></td>
+                <td class="right-align nurse-<%= nurse.id %> week" id="shift_sum"><%= week_dates.to_a.size - (@nurse_shift_counts[nurse.id].values.sum if @nurse_shift_counts[nurse.id]) || 0 %></td>
               </tr>
             <% end %>
           <% end %>
@@ -210,7 +233,7 @@
             <tr>
               <td class="left-align <%= shifts[shift.first] %> right top">総<%= shift.first %>合計</td>
               <% week_dates.each do |date| %>
-                <td class="right-align <%= shifts[shift.first] %> date-<%= date %> top week" id="<%= shifts[shift.first] %>_sum"><%= @daily_shift_counts[date][shift.first] %></td>
+                <td class="right-align <%= shifts[shift.first] %> date-<%= date %> top week" id="<%= shifts[shift.first] %>_sum"><%= @daily_shift_counts[date].to_h[shift.first] || 0 %></td>
               <% end %>
             </tr>
           <% end %>
@@ -225,32 +248,37 @@ document.addEventListener("DOMContentLoaded", function() {
   const monthViewBtn = document.getElementById("month-view-btn");
   const weekViewBtn = document.getElementById("week-view-btn");
   const weekSelector = document.getElementById("week-selector");
-  const calendarContainer = document.getElementById("calendar-container");
+  const weekDropdown = document.getElementById("week-dropdown");
   const weekView = document.getElementById("week-view");
   const monthView = document.getElementById("month-view");
 
+  // 月表示ボタンのクリックイベント
   monthViewBtn.addEventListener("click", function() {
     weekSelector.style.display = "none";
     weekView.style.display = "none";
     monthView.style.display = "block";
   });
 
+  // 週表示ボタンのクリックイベント
   weekViewBtn.addEventListener("click", function() {
     weekSelector.style.display = "block";
     monthView.style.display = "none";
     weekView.style.display = "block";
-    displayWeekCalendar();
+    displayWeekCalendar(); // 初期表示の週カレンダーを表示
   });
 
+  // 週カレンダーの表示を更新する関数
   function displayWeekCalendar() {
-    const selectedWeek = document.getElementById("week-dropdown").value;
+    const selectedWeek = weekDropdown.value;
     const weekTables = document.querySelectorAll("#week-view .week-table-wrapper");
     weekTables.forEach((table, index) => {
+      // 週の選択に基づいて対応する週のカレンダーを表示
       table.style.display = index.toString() === selectedWeek ? "block" : "none";
     });
   }
 
-  document.getElementById("week-dropdown").addEventListener("change", displayWeekCalendar);
+  // ドロップダウンの選択変更時に週カレンダーを更新
+  weekDropdown.addEventListener("change", displayWeekCalendar);
 });
 
 document.addEventListener("DOMContentLoaded", function() {
