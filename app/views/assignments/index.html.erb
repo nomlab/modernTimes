@@ -215,27 +215,27 @@
                   <% shift_name = assignment&.shift_type&.name&.first %>
                   <% shift_class = shift_classes[shift_name] %>
                   <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
-                    <td class="center-align <%= shift_class %> bg-holidays nurse-<%= nurse.id %> date-<%= date %> week" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+                    <td class="center-align <%= shift_class %> bg-holidays nurse-<%= nurse.id %> date-<%= date %> week-<%= index %>" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
                   <% else %>
-                    <td class="center-align <%= shift_class %> nurse-<%= nurse.id %> date-<%= date %> week" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+                    <td class="center-align <%= shift_class %> nurse-<%= nurse.id %> date-<%= date %> week-<%= index %>" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
                   <% end %>
                 <% end %>
-                <td class="right-align bg-sem nurse-<%= nurse.id %> week" id="sem_sum-<%= index %>">
+                <td class="right-align bg-sem nurse-<%= nurse.id %> week-<%= index %>" id="sem_sum">
                   <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.second] || 0) %>
                 </td>
-                <td class="right-align bg-ngt nurse-<%= nurse.id %> week" id="ngt_sum-<%= index %>">
+                <td class="right-align bg-ngt nurse-<%= nurse.id %> week-<%= index %>" id="ngt_sum">
                   <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.third] || 0) %>
                 </td>
-                <td class="right-align bg-semngt nurse-<%= nurse.id %> week" id="semngt_sum-<%= index %>">
+                <td class="right-align bg-semngt nurse-<%= nurse.id %> week-<%= index %>" id="semngt_sum">
                   <%= ((@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.second] || 0) + (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.third] || 0)) %>
                 </td>
-                <td class="right-align bg-day nurse-<%= nurse.id %> week" id="day_sum-<%= index %>">
+                <td class="right-align bg-day nurse-<%= nurse.id %> week-<%= index %>" id="day_sum">
                   <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.first] || 0) %>
                 </td>
-                <td class="right-align bg-off nurse-<%= nurse.id %> week" id="off_sum-<%= index %>">
+                <td class="right-align bg-off nurse-<%= nurse.id %> week-<%= index %>" id="off_sum">
                   <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.fourth] || 0) %>
                 </td>
-                <td class="right-align nurse-<%= nurse.id %> week" id="shift_sum-<%= index %>">
+                <td class="right-align nurse-<%= nurse.id %> week-<%= index %>" id="shift_sum>">
                   <%= (week_dates.to_a.size - (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id].values.flatten.sum || 0)) %>
                 </td>
               </tr>
@@ -306,7 +306,9 @@ document.addEventListener("DOMContentLoaded", function() {
       const classList = el.classList;
       const nurseIdClass = Array.from(classList).find(cls => cls.startsWith('nurse-'));
       const dateClass = Array.from(classList).find(cls => cls.startsWith('date-'));
+      const weekClass = Array.from(classList).find(cls => cls.startsWith('week-'));
       const nurseId = nurseIdClass ? nurseIdClass.split('-')[1] : null;
+      const weekId = weekClass ? weekClass.split('-')[1] : null;
       const parts = dateClass.split('-');
       const result = `${parts[1]}-${parts[2]}-${parts[3]}`;
       const date = dateClass ? result : null;
@@ -325,21 +327,20 @@ document.addEventListener("DOMContentLoaded", function() {
       el.textContent = next_shift_type;
 
       // 合計の更新処理を呼び出す
-      updateSumElements(nurseId, date);
+      updateSumElements(nurseId, weekId, date);
     });
   });
 
   // 合計値を更新するための関数
-  function updateSumElements(nurseId, date) {
+  function updateSumElements(nurseId, weekId, date) {
     // クリックされたnurseIdに対応するシフトタイプをカウント
     let weekdayCount = 0, weeksemCount = 0, weekngtCount = 0, weekoffCount = 0;
     let monthdayCount = 0, monthsemCount = 0, monthngtCount = 0, monthoffCount = 0;
-    let weekdatedayCount = 0, weekdatesemCount = 0, weekdatengtCount = 0;
-    let monthdatedayCount = 0, monthdatesemCount = 0, monthdatengtCount = 0;
-    console.log(date);
+    let weekdatedayCount = 0, weekdatesemCount = 0, weekdatengtCount = 0, weekdateoffCount = 0;
+    let monthdatedayCount = 0, monthdatesemCount = 0, monthdatengtCount = 0, monthdateoffCount = 0;
 
     // 週表示テーブルのナースごとのセルを取得してカウント
-    const weeknurseElements = document.querySelectorAll(`td.nurse-${nurseId}.week`);
+    const weeknurseElements = document.querySelectorAll(`td.nurse-${nurseId}.week-${weekId}`);
     weeknurseElements.forEach(function(element) {
       let text = element.textContent.trim();
       switch(text) {
@@ -363,7 +364,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // 週表示テーブルのナースごとのセルを取得してカウント
-    const weekdateElements = document.querySelectorAll(`td.date-${date}.week`);
+    const weekdateElements = document.querySelectorAll(`td.date-${date}.week-${weekId}`);
     weekdateElements.forEach(function(element) {
       let text = element.textContent.trim();
       switch(text) {
@@ -385,16 +386,15 @@ document.addEventListener("DOMContentLoaded", function() {
         case "休": monthdateoffCount++; break;
       }
     });
-
     // 週の合計を更新
-    updateSumElement('week#day_sum', weekdayCount, nurseId);
-    updateSumElement('week#sem_sum', weeksemCount, nurseId);
-    updateSumElement('week#ngt_sum', weekngtCount, nurseId);
-    updateSumElement('week#off_sum', weekoffCount, nurseId);
-    updateSumElement('week#semngt_sum', weeksemCount + weekngtCount, nurseId);
-    updateSumElement2('week#bg-day_sum', weekdatedayCount, date);
-    updateSumElement2('week#bg-sem_sum', weekdatesemCount, date);
-    updateSumElement2('week#bg-ngt_sum', weekdatengtCount, date);
+    updateSumElement(`week-${weekId}#day_sum`, weekdayCount, nurseId);
+    updateSumElement(`week-${weekId}#sem_sum`, weeksemCount, nurseId);
+    updateSumElement(`week-${weekId}#ngt_sum`, weekngtCount, nurseId);
+    updateSumElement(`week-${weekId}#off_sum`, weekoffCount, nurseId);
+    updateSumElement(`week-${weekId}#semngt_sum`, weeksemCount + weekngtCount, nurseId);
+    updateSumElement2(`week-${weekId}#bg-day_sum`, weekdatedayCount, date);
+    updateSumElement2(`week-${weekId}#bg-sem_sum`, weekdatesemCount, date);
+    updateSumElement2(`week-${weekId}#bg-ngt_sum`, weekdatengtCount, date);
 
     // 月の合計を更新
     updateSumElement('month#day_sum', monthdayCount, nurseId);
@@ -405,7 +405,7 @@ document.addEventListener("DOMContentLoaded", function() {
     updateSumElement2('month#bg-day_sum', monthdatedayCount, date);
     updateSumElement2('month#bg-sem_sum', monthdatesemCount, date);
     updateSumElement2('month#bg-ngt_sum', monthdatengtCount, date);
-}
+  }
 
   // 合計を表示するための要素を更新
   function updateSumElement(className, value, nurseId) {
@@ -418,7 +418,6 @@ document.addEventListener("DOMContentLoaded", function() {
   // 合計を表示するための要素を更新
   function updateSumElement2(className, value, date) {
     const sumElement2 = document.querySelector(`td.date-${date}.${className}`);
-    console.log(date);
     if (sumElement2) {
       sumElement2.textContent = value;
     }
