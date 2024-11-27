@@ -24,6 +24,8 @@ class AssignmentsController < ApplicationController
     @shift_types = ShiftType.all
     @nurse_shift_counts = count_shifts_by_nurse
     @daily_shift_counts = count_shifts_by_day
+    week_ranges = calculate_week_ranges(@month)
+    @weekly_shift_counts = calculate_weekly_shift_counts(week_ranges, @nurses)
 
     @date_range = @month.to_date...(@month >> 1).to_date
     @total = @shift_types.sum { |shift_type| @nurse_shift_counts.values.sum { |counts| counts[shift_type.name] || 0 } }
@@ -212,6 +214,40 @@ class AssignmentsController < ApplicationController
         nurse_shift_counts[nurse_id] = shift_counts
       end
       nurse_shift_counts
+    end
+
+    private
+
+    def calculate_week_ranges(month)
+      start_date = month.beginning_of_month
+      start_date -= start_date.wday - 1 if start_date.wday != 1 # 月曜日始まりに調整
+      start_date = start_date.beginning_of_week(:monday) unless month.beginning_of_month.wday == 1
+      end_date = month.end_of_month
+      week_ranges = []
+      current_start_date = start_date
+      while current_start_date <= end_date
+        current_end_date = current_start_date + 6.days
+        week_ranges << (current_start_date..current_end_date)
+        current_start_date = current_end_date + 1.day
+      end
+      week_ranges
+    end
+
+    def calculate_weekly_shift_counts(week_ranges, nurses)
+      week_ranges.map do |week_dates|
+        {
+          week_dates: week_dates,
+          nurse_shift_counts: nurses.each_with_object({}) do |nurse, counts|
+            nurse_assignments = nurse.assignments || []
+            week_range = week_dates.first..week_dates.last
+            # 該当週のシフトデータを集計
+            counts[nurse.id] = nurse_assignments
+              .select { |a| week_range.cover?(a.date) }
+              .group_by { |a| a.shift_type&.name }
+              .transform_values(&:count)
+          end
+        }
+      end
     end
 
     def count_shifts_by_day

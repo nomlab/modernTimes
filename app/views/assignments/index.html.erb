@@ -220,12 +220,24 @@
                     <td class="center-align <%= shift_class %> nurse-<%= nurse.id %> date-<%= date %> week" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
                   <% end %>
                 <% end %>
-                <td class="right-align bg-sem nurse-<%= nurse.id %> week" id="sem_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.second] %></td>
-                <td class="right-align bg-ngt nurse-<%= nurse.id %> week" id="ngt_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
-                <td class="right-align bg-semngt nurse-<%= nurse.id %> week" id="semngt_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.second] + @nurse_shift_counts[nurse.id][@shift_names.third] %></td>
-                <td class="right-align bg-day nurse-<%= nurse.id %> week" id="day_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.first] %></td>
-                <td class="right-align bg-off nurse-<%= nurse.id %> week" id="off_sum"><%= @nurse_shift_counts[nurse.id][@shift_names.fourth] %></td>
-                <td class="right-align nurse-<%= nurse.id %> week" id="shift_sum"><%= week_dates.to_a.size - (@nurse_shift_counts[nurse.id].values.sum if @nurse_shift_counts[nurse.id]) || 0 %></td>
+                <td class="right-align bg-sem nurse-<%= nurse.id %> week" id="sem_sum-<%= index %>">
+                  <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.second] || 0) %>
+                </td>
+                <td class="right-align bg-ngt nurse-<%= nurse.id %> week" id="ngt_sum-<%= index %>">
+                  <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.third] || 0) %>
+                </td>
+                <td class="right-align bg-semngt nurse-<%= nurse.id %> week" id="semngt_sum-<%= index %>">
+                  <%= ((@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.second] || 0) + (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.third] || 0)) %>
+                </td>
+                <td class="right-align bg-day nurse-<%= nurse.id %> week" id="day_sum-<%= index %>">
+                  <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.first] || 0) %>
+                </td>
+                <td class="right-align bg-off nurse-<%= nurse.id %> week" id="off_sum-<%= index %>">
+                  <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.fourth] || 0) %>
+                </td>
+                <td class="right-align nurse-<%= nurse.id %> week" id="shift_sum-<%= index %>">
+                  <%= (week_dates.to_a.size - (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id].values.flatten.sum || 0)) %>
+                </td>
               </tr>
             <% end %>
           <% end %>
