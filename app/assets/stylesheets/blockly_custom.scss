@@ -1,0 +1,88 @@
+/* タブコンテナ */
+.tab-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  width: 100%;
+}
+
+/* タブ */
+.tabs {
+  display: flex;
+  gap: 10px;
+  flex-grow: 1; /* タブが横並びになるように広げる */
+}
+
+.tab-link {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #007bff;
+  background-color: transparent;
+  border: 1px solid #007bff;
+  border-radius: 5px 5px 0 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tab-link.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.tab-link:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+/* ダウンロードボタン */
+.download-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #28a745;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.download-button:hover {
+  background-color: #218838;
+}
+
+/* タブのコンテンツ */
+.content {
+  display: none;
+  height: 780px;  /* 高さを揃えます */
+  width: 100%;    /* 幅をタブと揃える */
+}
+
+.content.active {
+  display: block;
+}
+
+/* Blocklyのエディタ */
+#blocklyDiv {
+  height: 100%;
+  width: 100%;
+  border: 1px solid #dee2e6;
+  background-color: #f4f4f4;
+  border-radius: 5px;
+}
+
+/* AUKコードエリア */
+#aukCodeContent {
+  padding: 10px;
+  background: #f4f4f4;
+  border-radius: 5px;
+  height: 100%;
+  width: 100%;
+  white-space: pre-wrap; /* 改行を保った表示 */
+  overflow-wrap: break-word; /* 長い行が切れたら折り返す */
+  border: 1px solid #dee2e6;
+}
