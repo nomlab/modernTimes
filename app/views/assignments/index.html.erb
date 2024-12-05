@@ -245,7 +245,7 @@
             <tr>
               <td class="left-align <%= shifts[shift.first] %> right top">総<%= shift.first %>合計</td>
               <% week_dates.each do |date| %>
-                <td class="right-align <%= shifts[shift.first] %> date-<%= date %> top week" id="<%= shifts[shift.first] %>_sum"><%= @daily_shift_counts[date].to_h[shift.first] || 0 %></td>
+                <td class="right-align <%= shifts[shift.first] %> date-<%= date %> top week-<%= index %>" id="<%= shifts[shift.first] %>_sum"><%= @daily_shift_counts[date].to_h[shift.first] || 0 %></td>
               <% end %>
             </tr>
           <% end %>
