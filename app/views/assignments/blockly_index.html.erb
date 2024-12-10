@@ -84,17 +84,21 @@ function generateAUKCode() {
 }
 
 function showAUKCode() {
-  const code = generateAUKCode();
-  document.getElementById('aukCodeContent').innerText = code;
+  const aukcode = generateAUKCode();
+  document.getElementById('aukCodeContent').innerText = aukcode;
 }
 
 function downloadAUKCode() {
   const aukCode = generateAUKCode();
-  const blob = new Blob([aukCode], { type: 'text/plain' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'schedule.auk';
-  link.click();
+  if (aukCode === "") {
+    alert("スケジュール作成用のブロックを入力してください");
+  } else {
+    const blob = new Blob([aukCode], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'schedule.auk';
+    link.click();
+  }
 }
 
 /* セットアップ */
@@ -116,14 +120,6 @@ Blockly.Blocks["schedule"] = {
     this.setColour(120);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
-
-  getYearValue: function() {
-    return this.getFieldValue("year");
-  },
-
-  getMonthValue: function() {
-    return this.getFieldValue("month");
   }
 };
 
@@ -157,10 +153,6 @@ Blockly.Blocks["nurse_name"] = {
     this.setColour(120);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
-
-  getNameValue: function() {
-    return this.getFieldValue("name");
   }
 };
 
@@ -179,14 +171,6 @@ Blockly.Blocks["nurse_information"] = {
     this.setColour(120);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
-
-  getGroupValue: function() {
-    return this.getFieldValue("group");
-  },
-
-  getinformationValue: function() {
-    return this.getFieldValue("information");
   }
 };
 
@@ -236,11 +220,11 @@ Blockly.Blocks["nurse_desire_entry"] = {
 Blockly.Blocks["constraint"] = {
   init: function() {
     this.appendValueInput("nurse")
-      .setCheck(["any", "nurse_group", "nurse_name_equal", "nurse_equal"]);
+      .setCheck(["collection", "nurse_group", "nurse_name_equal", "nurse_equal"]);
     this.appendDummyInput()
       .appendField("の看護師が");
     this.appendValueInput("shift")
-      .setCheck(["any", "shift","shift_type","date","timeslot_and","all_day","week"])
+      .setCheck(["collection", "shift","shift_type","date","timeslot_and","all_day","week"])
     this.appendDummyInput()
       .appendField("の勤務時間に");
     this.appendDummyInput()
@@ -254,81 +238,56 @@ Blockly.Blocks["constraint"] = {
     this.setColour(180);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
-
-  getNurseValue: function() {
-    return this.getFieldValue("nurse");
-  },
-
-  getShiftValue: function() {
-    return this.getFieldValue("shift");
-  },
-
-  getConstraintValue: function() {
-    return this.getFieldValue("constraint");
-  },
-
-  getNumberValue: function() {
-    return this.getFieldValue("number");
   }
 };
 
 /* 制約をかける対象(時間枠集合・看護師集合) */
 Blockly.Blocks["any"] = {
   init: function() {
-    this.appendValueInput("any")
+    this.appendValueInput("operand")
+      .setCheck("operator")
       .appendField("任意");
     this.setInputsInline(false);
-    this.setOutput(true, "any");
+    this.setOutput(true, "collection");
     this.setColour(60);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
+  }
 };
 
 Blockly.Blocks["nurse_equal"] = {
   init: function() {
-    this.appendValueInput("nurse_group")
-        .appendField(new Blockly.FieldDropdown([
-        ["チーム","team"], ["ラダーレベル","ladder"], ["グループ","group"]]), "nurse_group")
-        .appendField("が")
-        .appendField(new Blockly.FieldTextInput("Alpha"),"text");
+    this.appendValueInput("operand")
+      .setCheck("operator")
+      .appendField(new Blockly.FieldDropdown([["チーム","team"], ["ラダーレベル","ladder"], ["グループ","group"]]), "nurse_group")
+      .appendField("が")
+      .appendField(new Blockly.FieldTextInput("Alpha"),"text");
     this.setInputsInline(false);
-    this.setOutput(true, "nurse_equal");
+    this.setOutput(true, "collection");
     this.setColour(60);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
-
-  getGroupValue: function() {
-    return this.getFieldValue("nurse_group");
-  },
-
-  getTextValue: function() {
-    return this.getFieldValue("text");
   }
 };
 
 Blockly.Blocks["nurse_name_equal"] = {
   init: function() {
-    this.appendDummyInput()
-        .appendField("名前が")
-        .appendField(new Blockly.FieldTextInput("山田 花子"),"name");
+    this.appendValueInput("operand")
+      .setCheck("operator")
+      .appendField("名前が")
+      .appendField(new Blockly.FieldTextInput("山田 花子"),"name");
     this.setInputsInline(false);
-    this.setOutput(true, "nurse_name_equal");
+    this.setOutput(true, "collection");
     this.setColour(60);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
-
-  getNameValue: function() {
-    return this.getFieldValue("name");
   }
 };
 
 Blockly.Blocks["timeslot_and"] = {
   init: function() {
-    this.appendValueInput("timeslot_and")
+    this.appendValueInput("operand")
+      .setCheck("operator")
       .appendField(new Blockly.FieldNumber(2024, 2020, Infinity, 1), "year")
       .appendField("年")
       .appendField(new Blockly.FieldDropdown([
@@ -346,32 +305,17 @@ Blockly.Blocks["timeslot_and"] = {
         ["日勤", "day"], ["準夜勤", "sem"], ["深夜勤", "ngt"], ["任意勤", "any"]
       ]), "shift_type");
     this.setInputsInline(false);
-    this.setOutput(true, "timeslot_and");
+    this.setOutput(true, "collection");
     this.setColour(60);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
-
-  getYearValue: function() {
-    return this.getFieldValue("year");
-  },
-
-  getMonthValue: function() {
-    return this.getFieldValue("month");
-  },
-
-  getDayValue: function() {
-    return this.getFieldValue("day");
-  },
-
-  getShiftValue: function() {
-    return this.getFieldValue("shift_type");
   }
 };
 
 Blockly.Blocks["all_day"] = {
   init: function() {
-    this.appendDummyInput("all_day")
+    this.appendValueInput("operand")
+      .setCheck("operator")
       .appendField(new Blockly.FieldNumber(2024, 2020, Infinity, 1), "year")
       .appendField("年")
       .appendField(new Blockly.FieldDropdown([
@@ -383,28 +327,17 @@ Blockly.Blocks["all_day"] = {
         ["日勤", "day"], ["準夜勤", "sem"], ["深夜勤", "ngt"], ["任意勤", "any"]
       ]), "shift_type");
     this.setInputsInline(false);
-    this.setOutput(true, "all_day");
+    this.setOutput(true, "collection");
     this.setColour(60);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
-
-    getYearValue: function() {
-    return this.getFieldValue("year");
-  },
-
-  getMonthValue: function() {
-    return this.getFieldValue("month");
-  },
-
-  getShiftValue: function() {
-    return this.getFieldValue("shift_type");
   }
 };
 
 Blockly.Blocks["week"] = {
   init: function() {
-    this.appendDummyInput()
+    this.appendValueInput("operand")
+      .setCheck("operator")
       .appendField(new Blockly.FieldNumber(2024, 2020, Infinity, 1), "year")
       .appendField("年")
       .appendField(new Blockly.FieldDropdown([
@@ -420,36 +353,19 @@ Blockly.Blocks["week"] = {
         ["日勤", "day"], ["準夜勤", "sem"], ["深夜勤", "ngt"], ["任意勤", "any"]
       ]), "shift_type");
     this.setInputsInline(false);
-    this.setOutput(true, "week");
+    this.setOutput(true, "collection");
     this.setColour(60);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
-
-  getYearValue: function() {
-    return this.getFieldValue("year");
-  },
-
-  getMonthValue: function() {
-    return this.getFieldValue("month");
-  },
-
-  getWeekNumValue: function() {
-    return this.getFieldValue("week_num");
-  },
-
-  getShiftValue: function() {
-    return this.getFieldValue("shift_type");
   }
 };
 
 /*条件式*/
 Blockly.Blocks["operator"] = {
   init: function() {
-    this.appendValueInput("operator")
-      .setCheck(["nurse_group","shift_type","text","date"])
-      .appendField(new Blockly.FieldDropdown([
-        ["または","+"], ["かつ","*"]]), "operator");
+    this.appendValueInput("operand")
+      .setCheck(["collection"])
+      .appendField(new Blockly.FieldDropdown([["または", "+"], ["かつ", "*"]]), "operator");
     this.setInputsInline(false);
     this.setOutput(true, "operator");
     this.setColour(60);
@@ -612,18 +528,6 @@ Blockly.Blocks["date"] = {
     this.setColour(60);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
-
-  getYearValue: function() {
-    return this.getFieldValue("year");
-  },
-
-  getMonthValue: function() {
-    return this.getFieldValue("month");
-  },
-
-  getDateValue: function() {
-    return this.getFieldValue("date");
   }
 };
 
@@ -635,10 +539,6 @@ Blockly.Blocks["nurse"] = {
     this.setColour(180);
     this.setTooltip("");
     this.setHelpUrl("");
-  },
-
-  getNameValue: function() {
-    return this.getFieldValue("name");
   }
 };
 
@@ -725,8 +625,8 @@ Blockly.Python["nurse_desire_entry"] = function(block) {
 
 /* 制約 */
 Blockly.Python["constraint"] = function(block) {
-  var nurse = Blockly.Python.statementToCode(block, "nurse");
-  var shift = Blockly.Python.statementToCode(block, "shift");
+  var nurse = Blockly.Python.valueToCode(block, "nurse", Blockly.Python.ORDER_ATOMIC) || "";
+  var shift = Blockly.Python.valueToCode(block, "shift", Blockly.Python.ORDER_ATOMIC) || "";
   var constraint = block.getFieldValue("constraint");
   var number = block.getFieldValue("number");
   var code = constraint + " " + number + " do\n  timeslot {" + shift + "} & nurse {" + nurse + "}\nend\n";
@@ -735,8 +635,12 @@ Blockly.Python["constraint"] = function(block) {
 
 /* 制約をかける対象(時間枠集合・看護師集合) */
 Blockly.Python["any"] = function(block) {
+  var operandCode = Blockly.Python.valueToCode(block, "operand", Blockly.Python.ORDER_ATOMIC);
   var code = "any";
-  return code;
+  if (operandCode) {
+    code += " " + operandCode;
+  }
+  return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
 Blockly.Python["nurse_equal"] = function(block) {
@@ -766,7 +670,7 @@ Blockly.Python["timeslot_and"] = function(block) {
 
   // 無効な日付を無視
   if (day < 1 || day > daysInMonth) {
-    day = ''; // 無効な日付は空文字に設定
+    day = '';
   }
 
   var formattedDate = year + (month < 10 ? '0' : '') + month + (day < 10 ? '0' : '') + day;
@@ -774,20 +678,86 @@ Blockly.Python["timeslot_and"] = function(block) {
   return code;
 };
 
-//Blockly.Python["all_day"] = function(block) {
-//  var code = "all";
-//  return code;
-//};
-//
-//Blockly.Python["week"] = function(block) {
-//  var code = "all";
-//  return code;
-//};
-//
+Blockly.Python["all_day"] = function(block) {
+  var year = block.getFieldValue("year");
+  var month = block.getFieldValue("month");
+  var shift_type = block.getFieldValue("shift_type");
+
+  year = parseInt(year, 10);
+  month = parseInt(month, 10);
+
+  var daysInMonth = new Date(year, month, 0).getDate();
+  var code = Array.from({ length: daysInMonth }, (_, i) => {
+    var day = i + 1;
+    var formattedDate = year + (month < 10 ? '0' : '') + month + (day < 10 ? '0' : '') + day;
+    return shift_type + "(" + formattedDate + ")";
+  }).join(" + ");
+
+  return code;
+};
+
+Blockly.Python["week"] = function(block) {
+  var year = parseInt(block.getFieldValue("year"), 10);
+  var month = parseInt(block.getFieldValue("month"), 10);
+  var week_num = parseInt(block.getFieldValue("week_num"), 10);
+  var shift_type = block.getFieldValue("shift_type");
+
+  // 月の最初の日を取得
+  var firstDay = new Date(year, month - 1, 1);
+  // 月の最初の曜日を取得（0:日曜日, 1:月曜日, ..., 6:土曜日）
+  var firstWeekday = firstDay.getDay();
+  var totalDaysInMonth = new Date(year, month, 0).getDate();
+
+  // 1週目の場合: 月の1日から始め、日曜日で終わる
+  if (week_num === 1) {
+    var startDay = 1;
+    // 1週目終了日（その月の日曜日まで）
+    var endDay = 7 - firstWeekday;  // 月の最初の週の終了日
+    // 月末を超えないように調整
+    if (endDay > totalDaysInMonth) {
+      endDay = totalDaysInMonth;
+    }
+
+    var code = Array.from({ length: endDay - startDay + 1 }, (_, i) => {
+      var day = startDay + i;
+      var formattedDate = year + (month < 10 ? '0' : '') + month + (day < 10 ? '0' : '') + day;
+      return shift_type + "(" + formattedDate + ")";
+    }).join(" + ");
+
+    return code;
+  }
+
+  // 2週目以降の場合: 月曜日から次の日曜日まで
+  else {
+    // 1週目が終了した翌月曜日を計算
+    var startDay = (week_num - 1) * 7 - firstWeekday + 1;
+    // もし1週目が月末を超えてしまっている場合の調整
+    if (startDay <= 0) {
+      startDay += 7;
+    }
+
+    var endDay = startDay + 6; // 1週の7日間を計算
+    // 月末を超えないように調整
+    if (endDay > totalDaysInMonth) {
+      endDay = totalDaysInMonth;
+    }
+
+    var code = Array.from({ length: endDay - startDay + 1 }, (_, i) => {
+      var day = startDay + i;
+      var formattedDate = year + (month < 10 ? '0' : '') + month + (day < 10 ? '0' : '') + day;
+      return shift_type + "(" + formattedDate + ")";
+    }).join(" + ");
+
+    return code;
+  }
+};
 
 /* 条件式 */
+
 Blockly.Python["operator"] = function(block) {
-  var code = block.getFieldValue("operator");
-  return code;
+  var operandCode = Blockly.Python.valueToCode(block, "operand", Blockly.Python.ORDER_ATOMIC);
+  var operator = block.getFieldValue("operator");
+  var code = operator + " " + (operandCode || "");
+  return [code, Blockly.Python.ORDER_ATOMIC];
 };
 </script>
