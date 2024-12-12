@@ -4,6 +4,7 @@
   <div class="tabs">
     <button class="tab-link active" onclick="showTab('blockly')">Blockly</button>
     <button class="tab-link" onclick="showTab('aukCode')">AUK</button>
+    <button class="tab-link" onclick="showTab('schedule')">スケジュール表</button>
   </div>
   <button class="tab-link download-button" onclick="downloadAUKCode()">ダウンロード</button>
 </div>
@@ -51,6 +52,10 @@
   <pre id="aukCodeContent"></pre>
 </div>
 
+<div id="schedule" class="content">
+  <div id="scheduleContent"></div>
+</div>
+
 <script>
 // Blocklyワークスペースの初期化
 var workspace = Blockly.inject("blocklyDiv", {
@@ -79,6 +84,8 @@ function showTab(tabId) {
   // AUKコードタブが選択された場合、コードを生成する
   if (tabId === 'aukCode') {
     showAUKCode();
+  } else if (tabId === 'schedule') {
+    showSchedule();
   }
 }
 
@@ -89,6 +96,61 @@ function generateAUKCode() {
 function showAUKCode() {
   const aukcode = generateAUKCode();
   document.getElementById('aukCodeContent').innerText = aukcode;
+}
+
+async function showSchedule() {
+  const code = generateAUKCode();
+console.log(code);
+  try {
+    // スケジュール作成ジョブを開始
+    const response = await fetch('/blockly_table', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ code })
+    });
+
+    const data = await response.json();
+    if (data.status === 'job_started') {
+      const jobId = data.job_id;
+      pollScheduleResult(jobId); // ポーリング開始
+    }
+  } catch (error) {
+    console.error('通信エラー:', error);
+    alert('通信エラーが発生しました。');
+  }
+}
+
+async function pollScheduleResult(jobId) {
+  const interval = setInterval(async () => {
+    try {
+      const response = await fetch(`/fetch_schedule_result?job_id=${jobId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json(); // JSON形式として受け取る
+      console.log('ポーリングレスポンス:', data);
+
+      if (data.status === 'success') {
+        clearInterval(interval); // ポーリング停止
+        document.getElementById('scheduleContent').innerHTML = data.html; // HTMLを挿入
+        console.log('挿入されたHTML:', data.html);
+      } else if (data.status === 'processing') {
+        console.log('スケジュール作成中...');
+      } else {
+        console.error('未知のステータス:', data.status);
+        clearInterval(interval); // ポーリング停止
+      }
+    } catch (error) {
+      console.error('ポーリング中の通信エラー:', error);
+      clearInterval(interval); // エラー時にポーリングを停止
+    }
+  }, 10000); // 10秒間隔でポーリング
 }
 
 function downloadAUKCode() {

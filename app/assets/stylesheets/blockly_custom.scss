@@ -86,3 +86,15 @@
   overflow-wrap: break-word; /* 長い行が切れたら折り返す */
   border: 1px solid #dee2e6;
 }
+
+/* スケジュール表エリア */
+#scheduleContent {
+  padding: 10px;
+  background: #f4f4f4;
+  border-radius: 5px;
+  height: 100%;
+  width: 100%;
+  white-space: pre-wrap; /* 改行を保った表示 */
+  overflow-wrap: break-word; /* 長い行が切れたら折り返す */
+  border: 1px solid #dee2e6;
+}

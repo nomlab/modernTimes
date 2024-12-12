@@ -1,4 +1,5 @@
 class AssignmentsController < ApplicationController
+  skip_before_action :verify_authenticity_token # 必要に応じてCSRF保護を設定
   include Swallow
 
   #before_action :set_assignment, only: %i[ show edit update destroy ]
@@ -112,8 +113,34 @@ class AssignmentsController < ApplicationController
     end
   end
 
-  def solve_index
-    @html = params[:result]
+  def blockly_index
+
+  end
+
+  def blockly_table
+    code = params[:code]
+
+    # ジョブIDを生成
+    job_id = SecureRandom.uuid
+
+    # 非同期ジョブを実行
+    SolveScheduleJob.perform_later(code, job_id)
+
+    # クライアントにジョブIDを返す
+    render json: { status: 'job_started', job_id: job_id }
+  end
+
+  def fetch_schedule_result
+    job_id = params[:job_id]
+    Rails.logger.info("Fetching result for job_id: #{job_id}")
+    result = Rails.cache.read("schedule_result_#{job_id}")
+    Rails.logger.info("Fetched result: #{result}")
+
+    if result
+      render json: { status: 'success', html: result }
+    else
+      render json: { status: 'processing' }
+    end
   end
 
   def solve

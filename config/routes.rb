@@ -9,7 +9,10 @@ Rails.application.routes.draw do
   get "auk_download", to: "assignments#download", as: "auk_download"
   get "/solve(/:result)", to: "assignments#solve_index", as: "solve_index"
   post "/solve", to: "assignments#solve", as: "solve"
+
   get "/blockly", to: "assignments#blockly_index", as: "blockly_index"
+  post 'blockly_table', to: 'assignments#blockly_table'
+  get 'fetch_schedule_result', to: 'assignments#fetch_schedule_result'
 
   post '/blocks/run', to: 'blocks#run'
 
