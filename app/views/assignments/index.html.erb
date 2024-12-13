@@ -221,22 +221,23 @@
                   <% end %>
                 <% end %>
                 <td class="right-align bg-sem nurse-<%= nurse.id %> week-<%= index %>" id="sem_sum">
-                  <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.second] || 0) %>
+                  <%= (@weekly_shift_counts[index]&.dig(:nurse_shift_counts, nurse.id, @shift_names.second) || 0) %>
                 </td>
                 <td class="right-align bg-ngt nurse-<%= nurse.id %> week-<%= index %>" id="ngt_sum">
-                  <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.third] || 0) %>
+                  <%= (@weekly_shift_counts[index]&.dig(:nurse_shift_counts, nurse.id, @shift_names.third) || 0) %>
                 </td>
                 <td class="right-align bg-semngt nurse-<%= nurse.id %> week-<%= index %>" id="semngt_sum">
-                  <%= ((@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.second] || 0) + (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.third] || 0)) %>
+                  <%= (@weekly_shift_counts[index]&.dig(:nurse_shift_counts, nurse.id, @shift_names.second) || 0) +
+                      (@weekly_shift_counts[index]&.dig(:nurse_shift_counts, nurse.id, @shift_names.third) || 0) %>
                 </td>
                 <td class="right-align bg-day nurse-<%= nurse.id %> week-<%= index %>" id="day_sum">
-                  <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.first] || 0) %>
+                  <%= (@weekly_shift_counts[index]&.dig(:nurse_shift_counts, nurse.id, @shift_names.first) || 0) %>
                 </td>
                 <td class="right-align bg-off nurse-<%= nurse.id %> week-<%= index %>" id="off_sum">
-                  <%= (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id][@shift_names.fourth] || 0) %>
+                  <%= (@weekly_shift_counts[index]&.dig(:nurse_shift_counts, nurse.id, @shift_names.fourth) || 0) %>
                 </td>
-                <td class="right-align nurse-<%= nurse.id %> week-<%= index %>" id="shift_sum>">
-                  <%= (week_dates.to_a.size - (@weekly_shift_counts[index][:nurse_shift_counts][nurse.id].values.flatten.sum || 0)) %>
+                <td class="right-align nurse-<%= nurse.id %> week-<%= index %>" id="shift_sum">
+                  <%= (week_dates.to_a.size - (@weekly_shift_counts[index]&.dig(:nurse_shift_counts, nurse.id)&.values&.flatten&.sum || 0)) %>
                 </td>
               </tr>
             <% end %>
