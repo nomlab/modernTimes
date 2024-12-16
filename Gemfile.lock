@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/ueno12345/swallow.git
-  revision: 2d99636927495718ee9e6f0efb87e9b99ab49358
+  revision: e27c501bb2bea052b2691f39c053c0246364a20e
   branch: main
   specs:
     swallow (0.1.0)
@@ -153,7 +153,7 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     nio4r (2.7.4)
-    nokogiri (1.17.1-x86_64-linux)
+    nokogiri (1.17.2-x86_64-linux)
       racc (~> 1.4)
     popper_js (2.11.8)
     psych (5.2.0)

@@ -225,11 +225,11 @@ Blockly.Blocks["nurse_information"] = {
   init: function() {
     this.appendDummyInput()
       .appendField(new Blockly.FieldDropdown([
-        ["チーム", "team"], ["ラダーレベル", "ladder"], ["グループ", "group"]
+        ["チーム", "team"], ["ラダーレベル", "ladder"], ["グループ", "groups"]
       ]), "group")
       .appendField("は");
     this.appendDummyInput()
-      .appendField(new Blockly.FieldTextInput("1"), "information");
+      .appendField(new Blockly.FieldTextInput("A"), "information");
     this.setInputsInline(true);
     this.setPreviousStatement(true, "nurse_information");
     this.setNextStatement(true, "nurse_information");
@@ -662,27 +662,40 @@ Blockly.Python["shifts"] = function(block) {
 Blockly.Python["nurse_name"] = function(block) {
   var name = block.getFieldValue("name");
   var content = Blockly.Python.statementToCode(block, "nurse_content");
-  var code = "nurse " + '"' + name + '"' + " do" + content + "\nend\n";
+
+  if (Blockly.Python.groupsList && Blockly.Python.groupsList.length > 0) {
+    content = "  groups " + Blockly.Python.groupsList.join(", ") + "\n" + content;
+    Blockly.Python.groupsList = []; // Reset for the next nurse_name
+  }
+
+  var code = 'nurse "' + name + '" do\n' + content + "end\n";
   return code;
 };
 
 Blockly.Python["nurse_information"] = function(block) {
   var group = block.getFieldValue("group");
   var information = block.getFieldValue("information");
-  // var code = "\n" + group + '("'  + information + '")';
-  // return code;
-  if (group === "ladder"){
-    var code = "\n" + group + "("  + information + ")";
+
+  if (!Blockly.Python.groupsList) {
+    Blockly.Python.groupsList = [];
+  }
+
+  if (group === "groups") {
+    Blockly.Python.groupsList.push('"' + information + '"');
+    return "";
+  } else if (group === "ladder") {
+    var code = group + " " + information + "\n";
     return code;
   } else {
-    var code = "\n" + group + '("'  + information + '")';
+    var code = group + ' "' + information + '"\n';
     return code;
   }
 };
 
+
 Blockly.Python["nurse_desire"] = function(block) {
   var entries = Blockly.Python.statementToCode(block, "ENTRIES");
-  entries = entries.trim();  // 末尾のスペースを削除
+  entries = entries.trim();
   var code = "\n"+ "timeslots " + entries.split(" ").join(", ") + " ";
   return code;
 };
