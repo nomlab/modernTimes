@@ -170,7 +170,7 @@ function downloadAUKCode() {
 Blockly.Blocks["schedule"] = {
   init: function() {
     this.appendDummyInput("year")
-      .appendField(new Blockly.FieldNumber(2024, 2020, Infinity, 1), "year")
+      .appendField(new Blockly.FieldNumber(2025, 2020, Infinity, 1), "year")
       .appendField("年");
     this.appendDummyInput("month")
       .appendField(new Blockly.FieldDropdown([
@@ -256,7 +256,7 @@ Blockly.Blocks["nurse_desire"] = {
 Blockly.Blocks["nurse_desire_entry"] = {
   init: function() {
     this.appendDummyInput()
-      .appendField(new Blockly.FieldNumber(2024, 2020, Infinity, 1), "year")
+      .appendField(new Blockly.FieldNumber(2025, 2020, Infinity, 1), "year")
       .appendField("年")
       .appendField(new Blockly.FieldDropdown([
         ["1月", "01"], ["2月", "02"], ["3月", "03"], ["4月", "04"], ["5月", "05"], ["6月", "06"],
@@ -324,7 +324,7 @@ Blockly.Blocks["timeslot_and"] = {
   init: function() {
     this.appendValueInput("operand")
       .setCheck("operator")
-      .appendField(new Blockly.FieldNumber(2024, 2020, Infinity, 1), "year")
+      .appendField(new Blockly.FieldNumber(2025, 2020, Infinity, 1), "year")
       .appendField("年")
       .appendField(new Blockly.FieldDropdown([
         ["1月", "01"], ["2月", "02"], ["3月", "03"], ["4月", "04"], ["5月", "05"], ["6月", "06"],
@@ -352,7 +352,7 @@ Blockly.Blocks["all_day"] = {
   init: function() {
     this.appendValueInput("operand")
       .setCheck("operator")
-      .appendField(new Blockly.FieldNumber(2024, 2020, Infinity, 1), "year")
+      .appendField(new Blockly.FieldNumber(2025, 2020, Infinity, 1), "year")
       .appendField("年")
       .appendField(new Blockly.FieldDropdown([
         ["1月", "01"], ["2月", "02"], ["3月", "03"], ["4月", "04"], ["5月", "05"], ["6月", "06"],
@@ -374,7 +374,7 @@ Blockly.Blocks["week"] = {
   init: function() {
     this.appendValueInput("operand")
       .setCheck("operator")
-      .appendField(new Blockly.FieldNumber(2024, 2020, Infinity, 1), "year")
+      .appendField(new Blockly.FieldNumber(2025, 2020, Infinity, 1), "year")
       .appendField("年")
       .appendField(new Blockly.FieldDropdown([
         ["1月", "01"], ["2月", "02"], ["3月", "03"], ["4月", "04"], ["5月", "05"], ["6月", "06"],
@@ -669,8 +669,15 @@ Blockly.Python["nurse_name"] = function(block) {
 Blockly.Python["nurse_information"] = function(block) {
   var group = block.getFieldValue("group");
   var information = block.getFieldValue("information");
-  var code = "\n" + group + " " + '"' + information + '"';
-  return code;
+  // var code = "\n" + group + '("'  + information + '")';
+  // return code;
+  if (group === "ladder"){
+    var code = "\n" + group + "("  + information + ")";
+    return code;
+  } else {
+    var code = "\n" + group + '("'  + information + '")';
+    return code;
+  }
 };
 
 Blockly.Python["nurse_desire"] = function(block) {
