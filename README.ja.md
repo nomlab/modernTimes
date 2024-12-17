@@ -51,11 +51,14 @@ Swallow は SAT ソルバを用いた求解を行っている．
    ```
 
 ## Linux
-1. 起動
-```bash
-$ ./bin/server.sh start production
-```
-起動後，ブラウザ上で http://localhost:54321 を開くと modernTimes の画面が開く
+1. 起動<br >
+   以下のように実行するには，`bin/modernTimes` にパスを通す必要がある．
++ システムの起動<br >
+  `$ modernTimes start production`
++ システムの停止<br >
+  `$ modernTimes stop`
+
+   起動後，ブラウザ上で http://localhost:54321 を開くと modernTimes の画面が開く
 
 
 # Install for developpers
@@ -83,12 +86,14 @@ $ ./bin/server.sh start production
    ```
    $ bin/rails runner scripts/create_dummy_data.rb
    ```
-7. 起動
-   ```bash
-   $ ./bin/server.sh start development
-   ```
-起動後，ブラウザ上で http://localhost:3000 を開くと modernTimes の画面が開く
+7. 起動<br >
+   以下のように実行するには，`bin/modernTimes` にパスを通す必要がある．
++ システムの起動<br >
+  `$ modernTimes start development`
++ システムの停止<br >
+  `$ modernTimes stop`
 
+   起動後，ブラウザ上で http://localhost:3000 を開くと modernTimes の画面が開く
 
 # ER diagram
 ```mermaid

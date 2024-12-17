@@ -51,11 +51,13 @@ Swallow uses SAT solvers for schedule solving.
    ```
 
 ## Linux
-1. Launch
-```bash
-$ ./bin/server.sh start production
-```
-After launching, open http://localhost:54321 in your browser to open the modernTimes screen
+1. Launch<br >
+   To run the following, you need to pass `bin/modernTimes`.
++ Start the system.<br >
+   `$ modernTimes start development`.
++ Stop the system.<br >
+   `$ modernTimes stop`
+   After launching, open http://localhost:54321 in your browser to open the modernTimes screen
 
 
 # Install for developpers
@@ -83,12 +85,14 @@ After launching, open http://localhost:54321 in your browser to open the modernT
    ```
    $ bin/rails runner scripts/create_dummy_data.rb
    ```
-7. Launch
-   ```bash
-   $ ./bin/server.sh start development
-   ```
-After launching, open http://localhost:3000 in your browser to open the modernTimes screen
+7. Launch<br >
+   To run the following, you need to pass `bin/modernTimes`.
++ Start the system.<br >
+   `$ modernTimes start development`.
++ Stop the system.<br >
+   `$ modernTimes stop`
 
+   After launching, open http://localhost:3000 in your browser to open the modernTimes screen
 
 # ER diagram
 ```mermaid
