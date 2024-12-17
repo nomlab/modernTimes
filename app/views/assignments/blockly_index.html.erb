@@ -728,9 +728,18 @@ Blockly.Python["constraint"] = function(block) {
   var shift = Blockly.Python.valueToCode(block, "shift", Blockly.Python.ORDER_ATOMIC) || "";
   var constraint = block.getFieldValue("constraint");
   var number = block.getFieldValue("number");
-  var code = constraint + " " + number + " do\n  timeslot {" + shift + "} & nurse {" + nurse + "}\nend\n";
-  return code;
+
+  // 日付のリストを抽出
+  var shifts = shift.split(" +&+ ");
+
+  // 各日付ごとに制約を生成
+  var code = shifts.map(function(singleShift) {
+    return constraint + " " + number + " do\n  timeslot {" + singleShift + "} & nurse {" + nurse + "}\nend";
+  }).join("\n");
+
+  return code + "\n";
 };
+
 
 /* 制約をかける対象(時間枠集合) */
 Blockly.Python["timeslot_any"] = function(block) {
@@ -772,21 +781,20 @@ Blockly.Python["all_day"] = function(block) {
   var year = block.getFieldValue("year");
   var month = block.getFieldValue("month");
   var shift_type = block.getFieldValue("shift_type");
-  var operandCode = Blockly.Python.valueToCode(block, "operand", Blockly.Python.ORDER_ATOMIC);
 
   year = parseInt(year, 10);
   month = parseInt(month, 10);
 
+  // 月の日数を計算
   var daysInMonth = new Date(year, month, 0).getDate();
+
+  // 各日付のリストを作成
   var code = Array.from({ length: daysInMonth }, (_, i) => {
     var day = i + 1;
-    var formattedDate = year + (month < 10 ? '0' : '') + month + (day < 10 ? '0' : '') + day;
+    var formattedDate = year + (month < 10 ? "0" : "") + month + (day < 10 ? "0" : "") + day;
     return shift_type + "(" + formattedDate + ")";
-  }).join(" + ");
+  }).join(" +&+ "); // "day(20250101) + day(20250102) + ..."
 
-  if (operandCode) {
-    code += " " + operandCode;
-  }
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
@@ -817,7 +825,7 @@ Blockly.Python["week"] = function(block) {
       var day = startDay + i;
       var formattedDate = year + (month < 10 ? '0' : '') + month + (day < 10 ? '0' : '') + day;
       return shift_type + "(" + formattedDate + ")";
-    }).join(" + ");
+    }).join(" +&+ ");
   } else {
     var startDay = (week_num - 1) * 7 - firstWeekday + 1;
     // もし1週目が月末を超えてしまっている場合の調整
@@ -835,7 +843,7 @@ Blockly.Python["week"] = function(block) {
       var day = startDay + i;
       var formattedDate = year + (month < 10 ? '0' : '') + month + (day < 10 ? '0' : '') + day;
       return shift_type + "(" + formattedDate + ")";
-    }).join(" + ");
+    }).join(" +&+ ");
   }
   if (operandCode) {
     code += " " + operandCode;
