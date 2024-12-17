@@ -54,7 +54,9 @@ Swallow uses SAT solvers for schedule solving.
 1. Launch<br >
    To run the following, you need to pass `bin/modernTimes`.
 + Start the system.<br >
-   `$ modernTimes start development`.
+   `$ modernTimes start production`.
++ Restart the system.<br >
+   `$ modernTimes restart production`
 + Stop the system.<br >
    `$ modernTimes stop`
    After launching, open http://localhost:54321 in your browser to open the modernTimes screen
@@ -89,6 +91,8 @@ Swallow uses SAT solvers for schedule solving.
    To run the following, you need to pass `bin/modernTimes`.
 + Start the system.<br >
    `$ modernTimes start development`.
++ Restart the system.<br >
+   `$ modernTimes restart development`.
 + Stop the system.<br >
    `$ modernTimes stop`
 

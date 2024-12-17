@@ -55,6 +55,8 @@ Swallow は SAT ソルバを用いた求解を行っている．
    以下のように実行するには，`bin/modernTimes` にパスを通す必要がある．
 + システムの起動<br >
   `$ modernTimes start production`
++ システムの再起動<br >
+  `$ modernTimes restart production`
 + システムの停止<br >
   `$ modernTimes stop`
 
@@ -90,6 +92,8 @@ Swallow は SAT ソルバを用いた求解を行っている．
    以下のように実行するには，`bin/modernTimes` にパスを通す必要がある．
 + システムの起動<br >
   `$ modernTimes start development`
++ システムの再起動<br >
+  `$ modernTimes restart development`
 + システムの停止<br >
   `$ modernTimes stop`
 
