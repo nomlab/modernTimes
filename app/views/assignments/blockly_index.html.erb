@@ -28,6 +28,7 @@
       <block type="timeslot_and"></block>
       <block type="all_day"></block>
       <block type="week"></block>
+      <block type="weekday"></block>
     </category>
     <category name="制約をかける対象(看護師)" colour="270">
       <block type="nurse_any"></block>
@@ -57,6 +58,18 @@
 </div>
 
 <script>
+let holidaysCache = {};
+
+async function preloadHolidays() {
+  try {
+    const response = await fetch("https://holidays-jp.github.io/api/v1/date.json");
+    holidaysCache = await response.json();
+  } catch (error) {
+    console.error("祝日データの取得に失敗しました:", error);
+  }
+}
+
+preloadHolidays();
 // Blocklyワークスペースの初期化
 var workspace = Blockly.inject("blocklyDiv", {
   toolbox: document.getElementById("toolbox"),
@@ -150,7 +163,7 @@ async function pollScheduleResult(jobId) {
       console.error('ポーリング中の通信エラー:', error);
       clearInterval(interval); // エラー時にポーリングを停止
     }
-  }, 10000); // 10秒間隔でポーリング
+  }, 10000);
 }
 
 function downloadAUKCode() {
@@ -384,6 +397,32 @@ Blockly.Blocks["week"] = {
       .appendField(new Blockly.FieldDropdown([
         ["1週目", "1"], ["2週目", "2"], ["3週目", "3"], ["4週目", "4"], ["5週目", "5"]
       ]), "week_num")
+      .appendField("の日の")
+      .appendField(new Blockly.FieldDropdown([
+        ["日勤", "day"], ["準夜勤", "sem"], ["深夜勤", "ngt"], ["任意勤", "any"]
+      ]), "shift_type");
+    this.setInputsInline(false);
+    this.setOutput(true, "timeslot_collection");
+    this.setColour(300);
+    this.setTooltip("");
+    this.setHelpUrl("");
+  }
+};
+
+Blockly.Blocks["weekday"] = {
+  init: function() {
+    this.appendValueInput("operand")
+      .setCheck("operator")
+      .appendField(new Blockly.FieldNumber(2025, 2020, Infinity, 1), "year")
+      .appendField("年")
+      .appendField(new Blockly.FieldDropdown([
+        ["1月", "01"], ["2月", "02"], ["3月", "03"], ["4月", "04"], ["5月", "05"], ["6月", "06"],
+        ["7月", "07"], ["8月", "08"], ["9月", "09"], ["10月", "10"], ["11月", "11"], ["12月", "12"]
+      ]), "month")
+      .appendField("の")
+      .appendField(new Blockly.FieldDropdown([
+        ["平日", "weekdays"], ["土日祝日", "weekends"]
+      ]), "day")
       .appendField("の日の")
       .appendField(new Blockly.FieldDropdown([
         ["日勤", "day"], ["準夜勤", "sem"], ["深夜勤", "ngt"], ["任意勤", "any"]
@@ -848,6 +887,35 @@ Blockly.Python["week"] = function(block) {
   if (operandCode) {
     code += " " + operandCode;
   }
+  return [code, Blockly.Python.ORDER_ATOMIC];
+};
+
+Blockly.Python["weekday"] = function(block) {
+  var year = block.getFieldValue("year");
+  var month = block.getFieldValue("month");
+  var shift_type = block.getFieldValue("shift_type");
+  var isweekdays = block.getFieldValue("day") === "weekdays";
+
+  year = parseInt(year, 10);
+  month = parseInt(month, 10);
+
+  var daysInMonth = new Date(year, month, 0).getDate();
+  var codeArray = Array.from({ length: daysInMonth }, (_, i) => {
+    var day = i + 1;
+    var date = new Date(year, month - 1, day);
+    var dayOfWeek = date.getDay();
+    var formattedDate = year + "-" + (month < 10 ? "0" : "") + month + "-" + (day < 10 ? "0" : "") + day;
+
+    var isHoliday = holidaysCache[formattedDate] !== undefined;
+    var isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+    if ((isweekdays && !isHoliday && !isWeekend) || (!isweekdays && (isHoliday || isWeekend))) {
+      return shift_type + "(" + formattedDate.replace(/-/g, "") + ")";
+    }
+    return null;
+  }).filter(code => code !== null);
+
+  var code = codeArray.join(" +&+ ");
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
