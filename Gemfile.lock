@@ -7,12 +7,12 @@ GIT
 
 GIT
   remote: https://github.com/ueno12345/swallow.git
-  revision: e27c501bb2bea052b2691f39c053c0246364a20e
+  revision: ecefda8b551a59ea41d2f127e41de5d74efe30ab
   branch: main
   specs:
     swallow (0.1.0)
       activesupport
-      nokogiri
+      nokogiri (~> 1.17.2)
       rufo
       sycamore
 
