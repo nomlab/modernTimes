@@ -933,7 +933,11 @@ Blockly.Python["nurse_equal"] = function(block) {
   var group = block.getFieldValue("nurse_group");
   var text = block.getFieldValue("text");
   var operandCode = Blockly.Python.valueToCode(block, "operand", Blockly.Python.ORDER_ATOMIC);
-  var code = group + "(" + '"' + text + '"' +")";
+  if (group === "ladder") {
+    var code = group + "(" + text + ")";
+  } else {
+    var code = group + "(" + '"' + text + '"' +")";
+  }
   if (operandCode) {
     code += " " + operandCode;
   }
