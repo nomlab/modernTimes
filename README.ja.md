@@ -45,26 +45,26 @@ Swallow は SAT ソルバを用いた求解を行っている．
    ```bash
    $ npm install
    ```
-3. DBを作成する
-   ```bash
-   $ bundle exec rails db:migrate RAILS_ENV=prooduction
-   ```
-4. 既存の資格情報を削除する（オプション）
+3. 既存の資格情報を削除する（オプション）
 
    もし共有されている `credentials.yml.enc` と `master.key` が存在する場合、それらを最初に削除する必要があります。
    ```bash
       $ rm config/credentials.yml.enc
    ```
-5. 新しい `master.key` を生成する
+4. 新しい `master.key` を生成する
 
    各ユーザーは以下のコマンドを使用して自分の `master.key` を生成できます：
    `bin/rails credentials:edit`
    これにより、`config/` ディレクトリに新しい `master.key` が生成されます。もし `credentials.yml.enc` が存在しない場合、新たに作成されます。エディタが開かれたら、必要な設定（例: `secret_key_base`）を追加できます。
-6. 必要な設定を `credentials.yml.enc` に追加する
+5. 必要な設定を `credentials.yml.enc` に追加する
 
    `rails secret` の出力を直接資格情報エディタにリダイレクトして、プロセスを簡素化できます：
    ```bash
       $ EDITOR="echo secret_key_base: $(rails secret) >>" bin/rails credentials:edit
+   ```
+6. DBを作成する
+   ```bash
+   $ bundle exec rails db:migrate RAILS_ENV=prooduction
    ```
 
 ## Linux
