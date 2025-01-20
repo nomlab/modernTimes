@@ -45,26 +45,26 @@ Swallow uses SAT solvers for schedule solving.
    ```bash
    $ npm install
    ```
-3. Create a DB
-   ```bash
-   $ bundle exec rails db:migrate RAILS_ENV=prooduction
-   ```
-4. Remove Existing Credentials (Optional)
+3. Remove Existing Credentials (Optional)
 
    If a shared credentials.yml.enc and master.key exist, you may need to remove them first.
    ```bash
       $ rm config/credentials.yml.enc
    ```
-5. Generate a New master.key
+4. Generate a New master.key
 
    Each user can generate their own `master.key` using the following command:
    `bin/rails credentials:edit`
    This will create a new `master.key` in the `config/` directory. A new `credentials.yml.enc` file will also be generated if it does not exist. When the editor opens, you can add the required settings (e.g., `secret_key_base`).
-6. Add Required Settings to credentials.yml.enc
+5. Add Required Settings to credentials.yml.enc
 
    Redirect the output of `rails secret` directly into the credentials editor to simplify the process:
    ```bash
    $ EDITOR="echo secret_key_base: $(rails secret) >>" bin/rails credentials:edit
+   ```
+6. Create a DB
+   ```bash
+   $ bundle exec rails db:migrate RAILS_ENV=production
    ```
 
 ## Linux
