@@ -181,22 +181,27 @@ function downloadAUKCode() {
 
 /* セットアップ */
 Blockly.Blocks["schedule"] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput("year")
       .appendField(new Blockly.FieldNumber(2025, 2020, Infinity, 1), "year")
       .appendField("年");
     this.appendDummyInput("month")
       .appendField(new Blockly.FieldDropdown([
-        ["1月","01"], ["2月","02"], ["3月","03"], ["4月","04"], ["5月","05"], ["6月","06"],
-        ["7月","07"], ["8月","08"], ["9月","09"], ["10月","10"], ["11月","11"], ["12月","12"]
+        ["1月", "01"], ["2月", "02"], ["3月", "03"], ["4月", "04"], ["5月", "05"], ["6月", "06"],
+        ["7月", "07"], ["8月", "08"], ["9月", "09"], ["10月", "10"], ["11月", "11"], ["12月", "12"]
       ]), "month")
-      .appendField("月の勤務表作成");
+      .appendField("月");
+    this.appendDummyInput("week")
+      .appendField(new Blockly.FieldDropdown([
+        ["", ""], ["1週目", "1"], ["2週目", "2"], ["3週目", "3"], ["4週目", "4"], ["5週目", "5"]
+      ]), "week")
+      .appendField("の勤務表作成");
     this.appendStatementInput("shift_content")
       .setCheck("shifts");
     this.setInputsInline(true);
-    this.setNextStatement(true, ["nurse_name","constraint"]);
+    this.setNextStatement(true, ["nurse_name", "constraint"]);
     this.setColour(30);
-    this.setTooltip("");
+    this.setTooltip("週が空の場合，1月のスケジュールとなります");
     this.setHelpUrl("");
   }
 };
@@ -662,20 +667,52 @@ Blockly.Blocks["nurse"] = {
 
 /* AUK */
 /* セットアップ */
-Blockly.Python["schedule"] = function(block) {
+Blockly.Python["schedule"] = function (block) {
   var year = block.getFieldValue("year");
   var month = block.getFieldValue("month");
+  var week = block.getFieldValue("week"); // ドロップダウンの値をそのまま取得
   year = parseInt(year, 10);
   month = parseInt(month, 10);
 
-  // 月の日数を取得
+  var dateString = "";
   var daysInMonth = new Date(year, month, 0).getDate();
-  var dateString = '';
-  for (var day = 1; day <= daysInMonth; day++) {
-    var formattedDate = year + (month < 10 ? '0' : '') + month + (day < 10 ? '0' : '') + day;
-    dateString += '"' + formattedDate + '"';
-    if (day < daysInMonth) {
-      dateString += ', ';
+
+  if (!week) {
+    // 空が選択された場合、月全体の日程を出力
+    for (var day = 1; day <= daysInMonth; day++) {
+      var formattedDate = year + (month < 10 ? "0" : "") + month + (day < 10 ? "0" : "") + day;
+      dateString += '"' + formattedDate + '"';
+      if (day < daysInMonth) {
+        dateString += ", ";
+      }
+    }
+  } else {
+    // 週が選択された場合の処理
+    week = parseInt(week, 10);
+
+    // 月の初日と最初の曜日を取得
+    var firstDayOfMonth = new Date(year, month - 1, 1);
+    var startDay = (firstDayOfMonth.getDay() + 6) % 7; // 月曜を0とする調整
+
+    var startDate, endDate;
+
+    if (week === 1) {
+      startDate = 1;
+      endDate = 7 - startDay;
+      if (endDate > daysInMonth) endDate = daysInMonth;
+    } else {
+      startDate = (week - 1) * 7 - startDay + 1;
+      endDate = startDate + 6;
+      if (startDate < 1) startDate = 1;
+      if (endDate > daysInMonth) endDate = daysInMonth;
+    }
+
+    for (var day = startDate; day <= endDate; day++) {
+      var formattedDate = year + (month < 10 ? "0" : "") + month + (day < 10 ? "0" : "") + day;
+      dateString += '"' + formattedDate + '"';
+      if (day < endDate) {
+        dateString += ", ";
+      }
     }
   }
 
