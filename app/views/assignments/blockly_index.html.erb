@@ -22,6 +22,7 @@
     </category>
     <category name="制約" colour="150">
       <block type="constraint"></block>
+      <block type="constraint2"></block>
     </category>
     <category name="制約をかける対象(時間枠)" colour="300">
       <block type="timeslot_any"></block>
@@ -324,6 +325,30 @@ Blockly.Blocks["constraint"] = {
   }
 };
 
+Blockly.Blocks["constraint2"] = {
+  init: function() {
+    this.appendValueInput("nurse")
+      .setCheck("nurse_collection");
+    this.appendDummyInput()
+      .appendField("の看護師が");
+    this.appendValueInput("shift")
+      .setCheck("timeslot_collection")
+    this.appendDummyInput()
+      .appendField("の勤務時間に");
+    this.appendDummyInput()
+      .appendField(new Blockly.FieldDropdown([["最大","at_most"], ["少なくとも","at_least"], ["ちょうど","exactly"]]), "constraint")
+      .appendField(new Blockly.FieldNumber(10, 1, Infinity, 1), "number")
+    this.appendDummyInput()
+      .appendField("回割り当てられる");
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, ["schedule","nurse_name","constraint"]);
+    this.setNextStatement(true, "constraint");
+    this.setColour(180);
+    this.setTooltip("");
+    this.setHelpUrl("");
+  }
+};
+
 /* 制約をかける対象(時間枠集合) */
 Blockly.Blocks["timeslot_any"] = {
   init: function() {
@@ -426,7 +451,9 @@ Blockly.Blocks["weekday"] = {
       ]), "month")
       .appendField("の")
       .appendField(new Blockly.FieldDropdown([
-        ["平日", "weekdays"], ["土日祝日", "weekends"]
+        ["平日", "weekdays"], ["土日祝日", "weekends"],
+        ["月曜日", "mon"], ["火曜日", "tue"], ["水曜日", "wed"], ["木曜日", "thu"],
+        ["金曜日", "fri"], ["土曜日", "sat"], ["日曜日", "sun"]
       ]), "day")
       .appendField("の日の")
       .appendField(new Blockly.FieldDropdown([
@@ -816,6 +843,22 @@ Blockly.Python["constraint"] = function(block) {
   return code + "\n";
 };
 
+Blockly.Python["constraint2"] = function(block) {
+  var nurse = Blockly.Python.valueToCode(block, "nurse", Blockly.Python.ORDER_ATOMIC) || "";
+  var shift = Blockly.Python.valueToCode(block, "shift", Blockly.Python.ORDER_ATOMIC) || "";
+  var constraint = block.getFieldValue("constraint");
+  var number = block.getFieldValue("number");
+
+  // 日付のリストを抽出
+  var shifts = shift.split(" +&+ ");
+
+  // 各日付ごとに制約を生成
+  var code = shifts.map(function(singleShift) {
+    return constraint + " " + number + " do\n  timeslot {" + singleShift + "} & nurse {" + nurse + "}\nend";
+  }).join("\n");
+
+  return code + "\n";
+};
 
 /* 制約をかける対象(時間枠集合) */
 Blockly.Python["timeslot_any"] = function(block) {
@@ -931,7 +974,7 @@ Blockly.Python["weekday"] = function(block) {
   var year = block.getFieldValue("year");
   var month = block.getFieldValue("month");
   var shift_type = block.getFieldValue("shift_type");
-  var isweekdays = block.getFieldValue("day") === "weekdays";
+  var selected_day = block.getFieldValue("day");
 
   year = parseInt(year, 10);
   month = parseInt(month, 10);
@@ -945,8 +988,17 @@ Blockly.Python["weekday"] = function(block) {
 
     var isHoliday = holidaysCache[formattedDate] !== undefined;
     var isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    var isWeekday = !isHoliday && !isWeekend;
 
-    if ((isweekdays && !isHoliday && !isWeekend) || (!isweekdays && (isHoliday || isWeekend))) {
+    var dayMap = {
+      "mon": 1, "tue": 2, "wed": 3, "thu": 4, "fri": 5, "sat": 6, "sun": 0
+    };
+
+    if (
+      (selected_day === "weekdays" && isWeekday) ||
+      (selected_day === "weekends" && (isHoliday || isWeekend)) ||
+      (dayMap[selected_day] !== undefined && dayOfWeek === dayMap[selected_day])
+    ) {
       return shift_type + "(" + formattedDate.replace(/-/g, "") + ")";
     }
     return null;
