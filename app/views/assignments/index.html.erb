@@ -124,7 +124,7 @@
               <% shift_name = assignment&.shift_type&.name&.first %>
               <% shift_class = shift_classes[shift_name] %>
               <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
-                <td class="center-align <%= shift_class %> bg-holidays nurse-<%= nurse.id %> date-<%= date %> month" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
+                <td class="center-align <%= shift_class %> bg-holidays nurse-<%= nurse.id %> date-<%= date %> month" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"z><%= shift_name %></td>
               <% else %>
                 <td class="center-align <%= shift_class %> nurse-<%= nurse.id %> date-<%= date %> month" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
               <% end %>
@@ -298,23 +298,12 @@ document.addEventListener("DOMContentLoaded", function() {
   const shift_type_el = document.querySelectorAll("#shift_type");
   const shift_type_lists = ["日", "準", "深", "休"];
 
-  // シフトタイプの変更処理
   shift_type_el.forEach(function(el) {
+    // **右クリックでの勤務変更 (トグル)**
     el.addEventListener("contextmenu", function(event) {
-      event.preventDefault(); // 右クリックメニューを防ぐ
+      event.preventDefault();
 
-      // クリックされたセルのnurse idを取得
-      const classList = el.classList;
-      const nurseIdClass = Array.from(classList).find(cls => cls.startsWith('nurse-'));
-      const dateClass = Array.from(classList).find(cls => cls.startsWith('date-'));
-      const weekClass = Array.from(classList).find(cls => cls.startsWith('week-'));
-      const nurseId = nurseIdClass ? nurseIdClass.split('-')[1] : null;
-      const weekId = weekClass ? weekClass.split('-')[1] : null;
-      const parts = dateClass.split('-');
-      const result = `${parts[1]}-${parts[2]}-${parts[3]}`;
-      const date = dateClass ? result : null;
-
-      const currentShiftType = el.textContent.trim();    // 現在のシフトタイプを取得
+      const currentShiftType = el.textContent.trim();
       let next_shift_type = "";
 
       // 次のシフトタイプを決定
@@ -324,17 +313,74 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       });
 
-      // シフトタイプを更新
-      el.textContent = next_shift_type;
+      // 勤務を更新
+      updateShiftType(el, next_shift_type);
+    });
 
-      // 合計の更新処理を呼び出す
-      updateSumElements(nurseId, weekId, date);
+    // **左クリックでプルダウン表示**
+    el.addEventListener("click", function(event) {
+      event.preventDefault();
+
+      // すでにプルダウンが表示されていたら削除
+      let existingDropdown = document.getElementById("shift-dropdown");
+      if (existingDropdown) {
+        existingDropdown.remove();
+      }
+
+      // プルダウンを作成
+      let dropdown = document.createElement("select");
+      dropdown.id = "shift-dropdown";
+      dropdown.style.position = "absolute";
+      dropdown.style.left = `${event.pageX}px`;
+      dropdown.style.top = `${event.pageY}px`;
+
+      // 選択肢を追加
+      shift_type_lists.forEach(type => {
+        let option = document.createElement("option");
+        option.value = type;
+        option.textContent = type;
+        dropdown.appendChild(option);
+      });
+
+      // 現在の勤務を選択状態に
+      dropdown.value = el.textContent.trim();
+
+      // プルダウンが変更されたときの処理
+      dropdown.addEventListener("change", function() {
+        updateShiftType(el, dropdown.value);
+        dropdown.remove(); // 選択後にプルダウンを削除
+      });
+
+      // フォーカスが外れたら削除
+      dropdown.addEventListener("blur", function() {
+        dropdown.remove();
+      });
+
+      document.body.appendChild(dropdown);
+      dropdown.focus(); // フォーカスを当てて即選択可能に
     });
   });
 
-  // 合計値を更新するための関数
+  // **勤務を更新し、合計を再計算**
+  function updateShiftType(el, newShift) {
+    el.textContent = newShift;
+
+    // クリックされたセルの nurseId, weekId, date を取得
+    const classList = el.classList;
+    const nurseIdClass = Array.from(classList).find(cls => cls.startsWith('nurse-'));
+    const dateClass = Array.from(classList).find(cls => cls.startsWith('date-'));
+    const weekClass = Array.from(classList).find(cls => cls.startsWith('week-'));
+    const nurseId = nurseIdClass ? nurseIdClass.split('-')[1] : null;
+    const weekId = weekClass ? weekClass.split('-')[1] : null;
+    const parts = dateClass.split('-');
+    const result = `${parts[1]}-${parts[2]}-${parts[3]}`;
+    const date = dateClass ? result : null;
+
+    updateSumElements(nurseId, weekId, date);
+  }
+
+  // **合計値を更新する処理**
   function updateSumElements(nurseId, weekId, date) {
-    // クリックされたnurseIdに対応するシフトタイプをカウント
     let weekdayCount = 0, weeksemCount = 0, weekngtCount = 0, weekoffCount = 0;
     let monthdayCount = 0, monthsemCount = 0, monthngtCount = 0, monthoffCount = 0;
     let weekdatedayCount = 0, weekdatesemCount = 0, weekdatengtCount = 0, weekdateoffCount = 0;
@@ -387,6 +433,7 @@ document.addEventListener("DOMContentLoaded", function() {
         case "休": monthdateoffCount++; break;
       }
     });
+
     // 週の合計を更新
     updateSumElement(`week-${weekId}#day_sum`, weekdayCount, nurseId);
     updateSumElement(`week-${weekId}#sem_sum`, weeksemCount, nurseId);
@@ -408,15 +455,12 @@ document.addEventListener("DOMContentLoaded", function() {
     updateSumElement2('month#bg-ngt_sum', monthdatengtCount, date);
   }
 
-  // 合計を表示するための要素を更新
   function updateSumElement(className, value, nurseId) {
     const sumElement = document.querySelector(`td.nurse-${nurseId}.${className}`);
     if (sumElement) {
       sumElement.textContent = value;
     }
   }
-
-  // 合計を表示するための要素を更新
   function updateSumElement2(className, value, date) {
     const sumElement2 = document.querySelector(`td.date-${date}.${className}`);
     if (sumElement2) {
