@@ -296,13 +296,19 @@ document.addEventListener("DOMContentLoaded", function() {
     weekView.style.display = "block";
     displayWeekCalendar(); // 週カレンダーの再表示
     setTimeout(() => {
-      let firstShiftTypeCell = document.querySelector("#week-view td#shift_type");
-      if (firstShiftTypeCell) {
-        if (selectedCell) {
-          selectedCell.classList.remove("selected"); // 既存の選択を解除
+      // 週カレンダーに表示されているweek-idを考慮して、最初の shift_type セルにフォーカスを設定
+      const selectedWeekId = weekDropdown.value; // ドロップダウンで選択された週ID
+      const weekTable = document.querySelector(`#week-${selectedWeekId}`); // 週ごとのテーブルを取得
+
+      if (weekTable) {
+        let firstShiftTypeCell = weekTable.querySelector("td#shift_type");
+        if (firstShiftTypeCell) {
+          if (selectedCell) {
+            selectedCell.classList.remove("selected"); // 既存の選択を解除
+          }
+          selectedCell = firstShiftTypeCell;
+          selectedCell.classList.add("selected");
         }
-        selectedCell = firstShiftTypeCell;
-        selectedCell.classList.add("selected");
       }
     }, 0); // setTimeout で遅延させて週表示が完全に表示されてからフォーカス設定
   });
@@ -318,7 +324,25 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 週表示時に `td#shift_type` の最初のセルにフォーカスを設定
     setTimeout(() => {
-      let firstShiftTypeCell = document.querySelector("#week-view td#shift_type");
+      focusOnFirstShiftTypeCell();
+    }, 0);
+  }
+
+  // ドロップダウンの選択変更時に週カレンダーを更新
+  weekDropdown.addEventListener("change", function() {
+    displayWeekCalendar(); // 週カレンダーを更新
+    setTimeout(() => {
+      focusOnFirstShiftTypeCell(); // 週切替後にエイム位置を更新
+    }, 0);
+  });
+
+  // 週の最初の shift_type セルにフォーカスを設定する関数
+  function focusOnFirstShiftTypeCell() {
+    const selectedWeekId = weekDropdown.value; // ドロップダウンで選択された週ID
+    const weekTable = document.querySelector(`#week-${selectedWeekId}`); // 週ごとのテーブルを取得
+
+    if (weekTable) {
+      let firstShiftTypeCell = weekTable.querySelector("td#shift_type");
       if (firstShiftTypeCell) {
         if (selectedCell) {
           selectedCell.classList.remove("selected"); // 既存の選択を解除
@@ -326,11 +350,8 @@ document.addEventListener("DOMContentLoaded", function() {
         selectedCell = firstShiftTypeCell;
         selectedCell.classList.add("selected");
       }
-    }, 0);
+    }
   }
-
-  // ドロップダウンの選択変更時に週カレンダーを更新
-  weekDropdown.addEventListener("change", displayWeekCalendar);
 
   // 初期選択セルを設定
   let selectedCell = document.querySelector("td#shift_type");
