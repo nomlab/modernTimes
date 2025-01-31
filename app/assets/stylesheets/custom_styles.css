@@ -2,7 +2,32 @@ body{
   overflow-x: hidden;
 }
 
+/* セルにフォーカスを当てた時のスタイル */
+.selected {
+  background-color: #f0f8ff;  /* 水色の背景色 */
+  border: 2px solid #007bff;  /* 青い枠線 */
+}
 
+/* シフトタイプのセル */
+td.shift-type {
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+td.shift-type:hover {
+  background-color: #e9ecef;
+}
+
+/* プルダウンメニュー */
+#shift-dropdown {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
 table{
   width: 80%;
   margin: auto;

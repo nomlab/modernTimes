@@ -124,7 +124,7 @@
               <% shift_name = assignment&.shift_type&.name&.first %>
               <% shift_class = shift_classes[shift_name] %>
               <% if HolidayJp.holiday?(date) || date.wday == 6 || date.wday == 0 %>
-                <td class="center-align <%= shift_class %> bg-holidays nurse-<%= nurse.id %> date-<%= date %> month" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"z><%= shift_name %></td>
+                <td class="center-align <%= shift_class %> bg-holidays nurse-<%= nurse.id %> date-<%= date %> month" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
               <% else %>
                 <td class="center-align <%= shift_class %> nurse-<%= nurse.id %> date-<%= date %> month" id="shift_type" data-controller="update_shifts" data-action="contextmenu->update_shifts#changeShiftType"><%= shift_name %></td>
               <% end %>
@@ -265,11 +265,28 @@ document.addEventListener("DOMContentLoaded", function() {
   const weekView = document.getElementById("week-view");
   const monthView = document.getElementById("month-view");
 
+  // デフォルトで週表示に設定
+  weekSelector.style.display = "block";
+  monthView.style.display = "none";
+  weekView.style.display = "block";
+  displayWeekCalendar(); // 初期表示の週カレンダーを表示
+
   // 月表示ボタンのクリックイベント
   monthViewBtn.addEventListener("click", function() {
     weekSelector.style.display = "none";
     weekView.style.display = "none";
     monthView.style.display = "block";
+    setTimeout(() => {
+      // 月表示に切り替えた後にフォーカスを設定
+      let firstShiftTypeCell = document.querySelector("#month-view td#shift_type");
+      if (firstShiftTypeCell) {
+        if (selectedCell) {
+          selectedCell.classList.remove("selected"); // 既存の選択を解除
+        }
+        selectedCell = firstShiftTypeCell;
+        selectedCell.classList.add("selected");
+      }
+    }, 0); // setTimeout で遅延させて月表示が完全に表示されてからフォーカス設定
   });
 
   // 週表示ボタンのクリックイベント
@@ -277,24 +294,94 @@ document.addEventListener("DOMContentLoaded", function() {
     weekSelector.style.display = "block";
     monthView.style.display = "none";
     weekView.style.display = "block";
-    displayWeekCalendar(); // 初期表示の週カレンダーを表示
+    displayWeekCalendar(); // 週カレンダーの再表示
+    setTimeout(() => {
+      let firstShiftTypeCell = document.querySelector("#week-view td#shift_type");
+      if (firstShiftTypeCell) {
+        if (selectedCell) {
+          selectedCell.classList.remove("selected"); // 既存の選択を解除
+        }
+        selectedCell = firstShiftTypeCell;
+        selectedCell.classList.add("selected");
+      }
+    }, 0); // setTimeout で遅延させて週表示が完全に表示されてからフォーカス設定
   });
 
   // 週カレンダーの表示を更新する関数
   function displayWeekCalendar() {
     const selectedWeek = weekDropdown.value;
     const weekTables = document.querySelectorAll("#week-view .week-table-wrapper");
+
     weekTables.forEach((table, index) => {
-      // 週の選択に基づいて対応する週のカレンダーを表示
       table.style.display = index.toString() === selectedWeek ? "block" : "none";
     });
+
+    // 週表示時に `td#shift_type` の最初のセルにフォーカスを設定
+    setTimeout(() => {
+      let firstShiftTypeCell = document.querySelector("#week-view td#shift_type");
+      if (firstShiftTypeCell) {
+        if (selectedCell) {
+          selectedCell.classList.remove("selected"); // 既存の選択を解除
+        }
+        selectedCell = firstShiftTypeCell;
+        selectedCell.classList.add("selected");
+      }
+    }, 0);
   }
 
   // ドロップダウンの選択変更時に週カレンダーを更新
   weekDropdown.addEventListener("change", displayWeekCalendar);
-});
 
-document.addEventListener("DOMContentLoaded", function() {
+  // 初期選択セルを設定
+  let selectedCell = document.querySelector("td#shift_type");
+  if (selectedCell) {
+    selectedCell.classList.add("selected");
+  }
+
+  // キー入力イベント（選択されたセルを移動）
+  document.addEventListener("keydown", function(event) {
+    event.stopPropagation(); // イベント伝播を停止
+    if (!selectedCell) return;
+    let nextCell = null;
+
+    if (event.key === "ArrowRight") {
+      nextCell = selectedCell.nextElementSibling; // 右のセルへ移動
+    } else if (event.key === "ArrowLeft") {
+      nextCell = selectedCell.previousElementSibling; // 左のセルへ移動
+    } else if (event.key === "ArrowDown") {
+      const row = selectedCell.parentElement;
+      const rowIndex = Array.from(row.children).indexOf(selectedCell);
+      const nextRow = row.nextElementSibling;
+      if (nextRow) nextCell = nextRow.children[rowIndex]; // 下のセルへ移動
+    } else if (event.key === "ArrowUp") {
+      const row = selectedCell.parentElement;
+      const rowIndex = Array.from(row.children).indexOf(selectedCell);
+      const prevRow = row.previousElementSibling;
+      if (prevRow) nextCell = prevRow.children[rowIndex]; // 上のセルへ移動
+    }
+
+    if (nextCell && nextCell.id === "shift_type") {
+      if (selectedCell) {
+        selectedCell.classList.remove("selected"); // 前回の選択を解除
+      }
+      selectedCell = nextCell;
+      selectedCell.classList.add("selected"); // 新しいセルに選択を追加
+    }
+
+    // d, j, s, o のキー入力で勤務変更
+    const shiftMappings = {
+      "d": "日",
+      "j": "準",
+      "s": "深",
+      "o": "休"
+    };
+
+    if (shiftMappings[event.key]) {
+      selectedCell.textContent = shiftMappings[event.key];
+      updateShiftType(selectedCell, shiftMappings[event.key]); // 勤務変更を反映
+    }
+  });
+
   const shift_type_el = document.querySelectorAll("#shift_type");
   const shift_type_lists = ["日", "準", "深", "休"];
 
@@ -324,7 +411,10 @@ document.addEventListener("DOMContentLoaded", function() {
       // すでにプルダウンが表示されていたら削除
       let existingDropdown = document.getElementById("shift-dropdown");
       if (existingDropdown) {
-        existingDropdown.remove();
+        // 既存のプルダウンを削除する前に親ノードにまだ存在しているか確認
+        if (existingDropdown.parentNode) {
+          existingDropdown.remove();
+        }
       }
 
       // プルダウンを作成
@@ -352,8 +442,13 @@ document.addEventListener("DOMContentLoaded", function() {
       });
 
       // フォーカスが外れたら削除
-      dropdown.addEventListener("blur", function() {
-        dropdown.remove();
+        dropdown.addEventListener("blur", function() {
+        // setTimeout を使用して、blur が終了した後に削除処理を実行
+        setTimeout(function() {
+          if (dropdown.parentNode) {
+            dropdown.remove();
+          }
+        }, 0);
       });
 
       document.body.appendChild(dropdown);
@@ -364,7 +459,6 @@ document.addEventListener("DOMContentLoaded", function() {
   // **勤務を更新し、合計を再計算**
   function updateShiftType(el, newShift) {
     el.textContent = newShift;
-
     // クリックされたセルの nurseId, weekId, date を取得
     const classList = el.classList;
     const nurseIdClass = Array.from(classList).find(cls => cls.startsWith('nurse-'));
@@ -461,6 +555,7 @@ document.addEventListener("DOMContentLoaded", function() {
       sumElement.textContent = value;
     }
   }
+
   function updateSumElement2(className, value, date) {
     const sumElement2 = document.querySelector(`td.date-${date}.${className}`);
     if (sumElement2) {
