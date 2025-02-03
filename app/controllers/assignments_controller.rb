@@ -143,57 +143,47 @@ class AssignmentsController < ApplicationController
     end
   end
 
-  def solve
-    option = { format: "auk", solver: "minisat", debug: false }
+  def create_assignments(json)
+    parsed_json = JSON.parse(json)
+    shift_hash = parsed_json["shifts"]
 
-    OptionParser.new do |opt|
-      opt.banner = "Usage: swallow [options] <auk_file>"
-      opt.on("-d", "--debug", "                       (default: false)") { |v| option[:debug] = v }
-      opt.on("-f", "--format [VALUE]", ["auk", "html", "csv"], "[auk | html | csv]     (default: auk)") do |v|
-        option[:format] = v
+    shift_hash.each do |shift_data|
+      nurse = RailsNurse.find_by(name: shift_data["name"])
+
+      unless nurse
+        team_id = shift_data["team_id"] || 1
+        ladder_level = shift_data["ladder_level"] || 1
+        nurse = RailsNurse.create!(name: shift_data["name"], team_id: team_id, ladder_level: ladder_level)
       end
-      opt.on("-s", "--solver [VALUE]", "<solver name>          (default: minisat)") { |v| option[:solver] = v }
 
-      opt.parse!(ARGV)
+      shift = ShiftType.find_by(name: shift_data["shift_type"])
+
+      unless shift
+        kind = shift_data["kind"] || 0
+        shift = ShiftType.create!(name: shift_data["shift_type"], kind: kind)
+      end
+
+      date = shift_data["date"]
+      if Assignment.where(date: date, rails_nurse_id: nurse.id).exists?
+        Assignment.where(date: date, rails_nurse_id: nurse.id).update_all(shift_type_id: shift.id)
+      else
+        Assignment.create!(date: date, rails_nurse_id: nurse.id, shift_type_id: shift.id)
+      end
     end
 
-    file = params[:file]
+    off_shift = ShiftType.find_or_create_by!(name: "休み", kind: 0)
 
-    # AUK Parser
-    parser = AUKParser.new
-    parser.parse File.read(file) if file
-    ast = parser.ast
-
-    # Get month of schedule
-    month = ast.nodes.first.domain.constraints.first.pdays.first.slice(0,6)
-
-    # SAT Encoder
-    ptable = PropTable.new(ast)
-    formula = ast.to_cnf(ptable)
-
-    # Solving
-    solver = Ravensat::Solver.new(option[:solver])
-    if solver.solve formula, solver_log: option[:debug]
-      # SAT Decoding
-      # TODO: Make Decode Class
-      ptable.group_by { |i| i.nurse.name }.each_value do |nrs_ptable|
-        timeslots = []
-        nurse = nrs_ptable.first.nurse
-        nrs_ptable.select { |i| i.value.value }.each do |e|
-          timeslots.append e.timeslot.name
+    # 割当のないものを休みにする
+    date_range = parsed_json["date_range"]
+    range = (Date.parse(date_range["start"])..Date.parse(date_range["end"]))
+    range.each do |date|
+      assignments = Assignment.where(date: date)
+      assignments.each do |assignment|
+        if assignment.shift_type_id.nil?
+          assignment.update!(shift_type_id: off_shift.id)
         end
-        nurse.domain.update(timeslots.uniq, :timeslots)
       end
-    else
-      redirect_to assignments_path(month: month), notice: "シフトを作成できませんでした．\n制約条件を変更してください．", flash: {color: :red}
-      return
     end
-    #shift_jsonの形式 {"name"=>"nurse 5", "date"=>"2024-03-01", "shifttype"=>"日勤"}
-    shift_json = ast.to_json
-    create_assignments(shift_json)
-#    @html = ast.to_html
-#"    redirect_to solve_path(result: @html)
-    redirect_to assignments_path(month: month), notice: "シフトを作成しました．\n制約条件は成立可能です．", flash: {color: :green}
   end
 
   def download
