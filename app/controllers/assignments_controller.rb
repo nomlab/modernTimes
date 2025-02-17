@@ -1,6 +1,6 @@
 class AssignmentsController < ApplicationController
   skip_before_action :verify_authenticity_token # 必要に応じてCSRF保護を設定
-  include Swallow
+  include Sparrow
 
   #before_action :set_assignment, only: %i[ show edit update destroy ]
 

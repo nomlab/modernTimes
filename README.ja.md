@@ -15,8 +15,8 @@ AUK とは，ナーススケジューリング問題を記述可能な DSL(Domai
 
 本システムは AUK を中核としており，ビジュアルブロックからだけでなく，スケジュール表からも AUK を生成できる．
 そのため，スケジュールを表現する AUK を編集(ブロックを用いて制約を追加)し，再びスケジュールの求解を行うことで，対話的なスケジュール作成を可能としている．
-本システムは，スケジュールの求解部分に[Swallow](https://github.com/matsuda0528/swallow)を拡張し，使用している．
-Swallow は SAT ソルバを用いた求解を行っている．
+本システムは，スケジュールの求解部分に[sparrow](https://github.com/nomlab/sparrow)を拡張し，使用している．
+sparrow は SAT ソルバを用いた求解を行っている．
 SATソルバーへのインターフェースは[Ravensat](https://github.com/ueno12345/ravensat)が提供している．
 
 # Requirements
@@ -70,7 +70,7 @@ SATソルバーへのインターフェースは[Ravensat](https://github.com/ue
 
 ## Linux
 1. 起動<br >
-   以下のように実行するには，`bin/modernTimes` にパスを通す必要がある．
+   以下のように実行するには，`exe/modernTimes` にパスを通す必要がある．
 + システムの起動<br >
   `$ modernTimes start production`
 + システムの再起動<br >
@@ -107,7 +107,7 @@ SATソルバーへのインターフェースは[Ravensat](https://github.com/ue
    $ bin/rails runner scripts/create_dummy_data.rb
    ```
 7. 起動<br >
-   以下のように実行するには，`bin/modernTimes` にパスを通す必要がある．
+   以下のように実行するには，`exe/modernTimes` にパスを通す必要がある．
 + システムの起動<br >
   `$ modernTimes start development`
 + システムの再起動<br >

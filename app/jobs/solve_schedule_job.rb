@@ -1,5 +1,5 @@
 class SolveScheduleJob < ApplicationJob
-  include Swallow
+  include Sparrow
   queue_as :default
 
   def perform(code, job_id)

@@ -78,8 +78,8 @@ group :test do
   gem "webdrivers"
 end
 
-gem "swallow", git: "https://github.com/ueno12345/swallow.git", branch: "main"
-gem "ravensat", git: "https://github.com/ueno12345/ravensat.git", branch: "master"
+gem "sparrow", git: "https://github.com/nomlab/sparrow.git", branch: "main"
+gem "ravensat", git: "https://github.com/nomlab/ravensat.git", branch: "master"
 
 gem "holiday_jp"
 gem 'concurrent-ruby', '1.3.4'

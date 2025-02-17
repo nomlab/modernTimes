@@ -1,16 +1,16 @@
 GIT
-  remote: https://github.com/ueno12345/ravensat.git
+  remote: https://github.com/nomlab/ravensat.git
   revision: 41379c537dc6fc23a44164df4d6b1c2e2e563874
   branch: master
   specs:
     ravensat (1.1.1)
 
 GIT
-  remote: https://github.com/ueno12345/swallow.git
-  revision: 9ffe1f08d727f4f009dcd18435b3e6fc5bcbf85a
+  remote: https://github.com/nomlab/sparrow.git
+  revision: 826c735cf7f10f1ac8cbc74f91618a43287af606
   branch: main
   specs:
-    swallow (0.1.0)
+    sparrow (0.1.0)
       activesupport
       nokogiri (~> 1.17.2)
       rufo
@@ -274,10 +274,10 @@ DEPENDENCIES
   sassc
   sassc-rails
   selenium-webdriver
+  sparrow!
   sprockets-rails
   sqlite3 (~> 1.4)
   stimulus-rails
-  swallow!
   turbo-rails
   tzinfo-data
   web-console

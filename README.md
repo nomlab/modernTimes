@@ -15,9 +15,9 @@ AUK is a DSL (Domain Specific Language) that can describe nurse scheduling probl
 
 The system is based on AUK and can generate AUK not only from visual blocks but also from schedules.
 Therefore, the system enables interactive schedule creation by editing the AUK representing the schedule (adding constraints using blocks) and then solving the schedule again.
-The system uses an extension of [Swallow](https://github.com/matsuda0528/swallow) for the schedule solver.
-Swallow uses SAT solvers for schedule solving.
-An interface to SAT Solver is provided by [Ravensat](https://github.com/ueno12345/ravensat/).
+The system uses an extension of [sparrow](https://github.com/nomlan/sparrow) for the schedule solver.
+sparrow uses SAT solvers for schedule solving.
+An interface to SAT Solver is provided by [Ravensat](https://github.com/nomlab/ravensat/).
 
 # Requirements
 + Ruby 3.1.2
@@ -70,7 +70,7 @@ An interface to SAT Solver is provided by [Ravensat](https://github.com/ueno1234
 
 ## Linux
 1. Launch<br >
-   To run the following, you need to pass `bin/modernTimes`.
+   To run the following, you need to pass `exe/modernTimes`.
 + Start the system.<br >
    `$ modernTimes start production`.
 + Restart the system.<br >
@@ -106,7 +106,7 @@ An interface to SAT Solver is provided by [Ravensat](https://github.com/ueno1234
    $ bin/rails runner scripts/create_dummy_data.rb
    ```
 7. Launch<br >
-   To run the following, you need to pass `bin/modernTimes`.
+   To run the following, you need to pass `exe/modernTimes`.
 + Start the system.<br >
    `$ modernTimes start development`.
 + Restart the system.<br >
