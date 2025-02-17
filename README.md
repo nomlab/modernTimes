@@ -17,6 +17,7 @@ The system is based on AUK and can generate AUK not only from visual blocks but 
 Therefore, the system enables interactive schedule creation by editing the AUK representing the schedule (adding constraints using blocks) and then solving the schedule again.
 The system uses an extension of [Swallow](https://github.com/matsuda0528/swallow) for the schedule solver.
 Swallow uses SAT solvers for schedule solving.
+An interface to SAT Solver is provided by [Ravensat](https://github.com/ueno12345/ravensat/).
 
 # Requirements
 + Ruby 3.1.2

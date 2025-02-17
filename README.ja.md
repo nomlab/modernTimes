@@ -17,6 +17,7 @@ AUK とは，ナーススケジューリング問題を記述可能な DSL(Domai
 そのため，スケジュールを表現する AUK を編集(ブロックを用いて制約を追加)し，再びスケジュールの求解を行うことで，対話的なスケジュール作成を可能としている．
 本システムは，スケジュールの求解部分に[Swallow](https://github.com/matsuda0528/swallow)を拡張し，使用している．
 Swallow は SAT ソルバを用いた求解を行っている．
+SATソルバーへのインターフェースは[Ravensat](https://github.com/ueno12345/ravensat)が提供している．
 
 # Requirements
 + Ruby 3.1.2
